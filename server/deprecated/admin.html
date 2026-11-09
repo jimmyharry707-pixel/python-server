@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CareerCraft Admin</title>
+<link rel="icon" href="/static/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" href="/static/careercraft_icon.png" />
+<link rel="apple-touch-icon" href="/static/careercraft_icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/workspace.css?v=sun1" />
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#000000;
+    --bg-elev:#1b1f23;
+    --panel:#1b1f23;
+    --panel-2:#242424;
+    --surface:#2a2e33;
+    --line:rgba(255,255,255,.12);
+    --line-strong:rgba(255,255,255,.22);
+    --fg:rgba(255,255,255,.92);
+    --muted:rgba(255,255,255,.6);
+    --accent:#70b5f9;
+    --accent-strong:#0a66c2;
+    --accent-soft:rgba(10,102,194,.28);
+    --ok:#57c26b;
+    --bad:#f87171;
+    --warn:#e7a33e;
+    --font:"Source Sans 3", "Segoe UI", sans-serif;
+    --font-brand:"Source Sans 3", "Segoe UI", sans-serif;
+    --radius:8px;
+    --shadow:0 0 0 1px rgba(255,255,255,.04), 0 4px 12px rgba(0,0,0,.35);
+    --text-sm:14px;
+    --text:15px;
+    --text-lg:16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0;
+    font-family:var(--font);
+    font-size:var(--text);
+    line-height:1.45;
+    background:var(--bg);
+    color:var(--fg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .ico { width:18px; height:18px; display:block; flex-shrink:0; }
+  .ico-sm { width:16px; height:16px; }
+
+  .topbar {
+    position:sticky; top:0; z-index:30;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; height:56px;
+    background:var(--bg-elev);
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .brand { display:flex; align-items:center; gap:10px; min-width:0; color:inherit; text-decoration:none; }
+  .brand-logo {
+    width:32px; height:32px; border-radius:4px;
+    object-fit:contain; flex-shrink:0; background:#000;
+  }
+  .brand-name {
+    font-family:var(--font-brand);
+    font-size:20px; font-weight:700;
+    letter-spacing:-.01em; line-height:1; white-space:nowrap;
+  }
+  .brand-badge {
+    font-size:12px; font-weight:600;
+    color:var(--fg); background:var(--surface);
+    border:1px solid var(--line); border-radius:4px;
+    padding:3px 8px; white-space:nowrap;
+  }
+  .topbar-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  .user-chip {
+    color:var(--muted); font-size:var(--text-sm);
+    padding:6px 12px; border-radius:16px;
+    background:var(--panel-2); border:1px solid var(--line);
+    max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .admin-layout {
+    display:flex; align-items:stretch;
+    min-height:calc(100vh - 56px);
+  }
+  .sidebar {
+    width:248px; flex-shrink:0;
+    background:var(--bg-elev);
+    border-right:1px solid var(--line);
+    padding:16px 12px 32px;
+    overflow-y:auto;
+  }
+  .sidebar-nav { display:flex; flex-direction:column; gap:2px; }
+  .nav-section {
+    margin:18px 10px 8px;
+    font-size:12px; font-weight:600;
+    color:var(--muted);
+  }
+  .nav-section:first-child { margin-top:4px; }
+  .sidebar-nav button {
+    display:flex; align-items:center; gap:12px; width:100%;
+    background:transparent; color:var(--muted);
+    border:none; border-radius:8px;
+    padding:10px 12px;
+    cursor:pointer; font-size:var(--text-lg); font-family:inherit; font-weight:500;
+    text-align:left; transition:color .12s, background .12s;
+  }
+  .sidebar-nav button:hover { color:var(--fg); background:rgba(255,255,255,.06); }
+  .sidebar-nav button.active {
+    color:var(--fg); background:var(--accent-soft);
+    font-weight:600;
+  }
+  .sidebar-nav button svg { opacity:.8; }
+  .sidebar-nav button.active svg { opacity:1; color:var(--accent); }
+  .sidebar-toggle {
+    display:none; align-items:center; gap:8px;
+    background:var(--panel-2); color:var(--fg);
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px 12px; cursor:pointer; font-size:var(--text); font-family:inherit; font-weight:600;
+  }
+  .sidebar-toggle:hover { border-color:var(--line-strong); }
+
+  main.content {
+    flex:1; min-width:0;
+    padding:28px 32px 56px;
+    max-width:1280px;
+  }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:22px; }
+  .dash-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:4px; }
+  .card {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px 16px; box-shadow:var(--shadow);
+  }
+  .card .n { font-size:28px; font-weight:700; letter-spacing:-.02em; line-height:1.1; }
+  .card .l { color:var(--muted); font-size:var(--text-sm); font-weight:500; margin-top:6px; }
+
+  .btn, .primary {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--panel-2); color:var(--fg);
+    border:1px solid var(--line); border-radius:24px;
+    padding:9px 16px; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+    cursor:pointer; line-height:1.2;
+  }
+  .btn:hover { border-color:var(--line-strong); background:var(--surface); }
+  .btn-primary, .primary {
+    background:var(--accent-strong); color:#fff; border-color:transparent;
+  }
+  .btn-primary:hover, .primary:hover { filter:brightness(1.08); }
+  .btn-ghost {
+    background:transparent; border-color:transparent; color:var(--muted); border-radius:8px;
+  }
+  .btn-ghost:hover { color:var(--fg); background:rgba(255,255,255,.06); border-color:transparent; }
+
+  table {
+    width:100%; border-collapse:collapse; background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+  }
+  .panel table, .board-panel table, .release-panel table, .detail-drawer table {
+    border:none; border-radius:0; background:transparent;
+  }
+  th, td { text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); font-size:var(--text); }
+  th {
+    color:var(--muted); font-size:var(--text-sm); font-weight:600;
+    background:rgba(255,255,255,.03);
+  }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,.03); }
+  .pill {
+    padding:3px 10px; border-radius:16px; font-size:13px; font-weight:600;
+    display:inline-block;
+  }
+  .pill.on { background:rgba(87,194,107,.18); color:var(--ok); }
+  .pill.off { background:rgba(248,113,113,.18); color:var(--bad); }
+  .pill.warn { background:rgba(231,163,62,.18); color:var(--warn); }
+  .role-cell select {
+    min-width:120px;
+    background:var(--panel-2); color:var(--fg);
+    border:1px solid var(--line); border-radius:8px;
+    padding:6px 8px; font:inherit; font-size:var(--text-sm); font-weight:600;
+  }
+  .role-cell select.role-admin {
+    border-color:rgba(248,113,113,.55);
+    background:rgba(248,113,113,.14); color:#f87171;
+  }
+  .role-cell select.role-manager {
+    border-color:rgba(112,181,249,.55);
+    background:rgba(112,181,249,.14); color:var(--accent);
+  }
+  .role-cell select.role-supporter {
+    border-color:rgba(231,163,62,.55);
+    background:rgba(231,163,62,.14); color:var(--warn);
+  }
+  .role-cell select.role-member {
+    border-color:rgba(87,194,107,.55);
+    background:rgba(87,194,107,.14); color:var(--ok);
+  }
+  button.link {
+    background:none; border:none; color:var(--accent); cursor:pointer;
+    padding:0; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+  }
+  button.link.danger { color:var(--bad); }
+  button.link:disabled { color:var(--muted); cursor:default; opacity:.5; }
+  a.link { color:var(--accent); text-decoration:none; font-size:inherit; font-weight:600; }
+  a.link:hover { text-decoration:underline; }
+  input, select {
+    background:var(--panel-2); border:1px solid var(--line); color:var(--fg);
+    padding:10px 12px; border-radius:var(--radius); font-size:var(--text); font-family:inherit;
+  }
+  input:focus, select:focus {
+    outline:none; border-color:var(--accent-strong); box-shadow:0 0 0 2px rgba(10,102,194,.35);
+  }
+
+  .login-wrap {
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px 16px;
+    background:var(--bg);
+  }
+  .login {
+    width:100%; max-width:400px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:32px 28px; display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow);
+  }
+  .login-brand {
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    margin-bottom:8px; text-align:center;
+  }
+  .login-brand img {
+    width:56px; height:56px; border-radius:8px; object-fit:contain; background:#000;
+  }
+  .login-brand .brand-name { font-size:28px; font-weight:700; }
+  .login-brand .hint { margin:0; font-size:var(--text); }
+  .login label {
+    display:block; font-size:var(--text-sm); font-weight:600;
+    color:var(--fg); margin-bottom:6px;
+  }
+  .login input { width:100%; }
+  .login .primary { width:100%; margin-top:6px; padding:12px 16px; font-size:var(--text-lg); border-radius:24px; }
+
+  .hidden { display:none !important; }
+  .err { color:var(--bad); font-size:var(--text-sm); min-height:18px; }
+  .ok { color:var(--ok); font-size:var(--text-sm); min-height:18px; }
+  h2 {
+    font-size:26px; margin:0 0 8px; font-family:var(--font-brand);
+    font-weight:700; letter-spacing:-.02em; line-height:1.2;
+  }
+  h3.section-title, .section-title {
+    margin:28px 0 8px; font-size:18px; font-weight:600;
+    color:var(--fg); letter-spacing:0;
+  }
+  .page-sub { margin:0 0 20px; color:var(--muted); font-size:var(--text-lg); line-height:1.4; max-width:62ch; }
+  .panel {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; box-shadow:var(--shadow); margin-bottom:16px;
+  }
+  .panel-head {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 18px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.02);
+  }
+  .panel-title {
+    margin:0; font-size:var(--text-lg); font-weight:600;
+    color:var(--fg); font-family:var(--font);
+  }
+  .panel-body { padding:16px 18px; }
+  .panel-body.flush { padding:0; }
+  .toolbar {
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:16px;
+    padding:14px 16px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+  }
+  .toolbar label { font-size:var(--text-sm); font-weight:600; color:var(--fg); display:flex; flex-direction:column; gap:6px; }
+  .toolbar input { min-width:140px; }
+  .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size:13px; }
+  .seat-list { margin:0; padding-left:18px; color:var(--muted); font-size:var(--text-sm); }
+  .seat-list li { margin:4px 0; }
+  .actions { display:flex; gap:14px; flex-wrap:wrap; align-items:center; }
+  .board { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+  @media (max-width:900px) { .board { grid-template-columns:1fr; } }
+  @media (max-width:900px) {
+    .admin-layout { flex-direction:column; }
+    .sidebar {
+      width:100%; border-right:none; border-bottom:1px solid var(--line);
+      padding:10px 12px 12px; max-height:none;
+    }
+    .sidebar.collapsed .sidebar-nav { display:none; }
+    .sidebar-toggle { display:inline-flex; margin-bottom:8px; }
+    .sidebar-nav { flex-direction:row; flex-wrap:wrap; gap:6px; }
+    .nav-section { width:100%; margin:12px 4px 4px; }
+    .sidebar-nav button {
+      width:auto; border-radius:20px; padding:8px 14px; font-size:var(--text-sm);
+    }
+  }
+  @media (max-width:640px) {
+    main.content { padding:18px 14px 36px; }
+    .topbar { padding:0 14px; }
+    .brand-name { font-size:18px; }
+    .user-chip { max-width:120px; }
+    h2 { font-size:22px; }
+  }
+  .board-panel {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px; min-height:200px; box-shadow:var(--shadow);
+  }
+  .board-panel h3 { margin:0 0 14px; font-size:var(--text-lg); color:var(--fg); font-weight:600; }
+  .profile-card { background:var(--panel-2); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; cursor:grab; }
+  .profile-card:active { cursor:grabbing; }
+  .profile-card .title { font-weight:600; font-size:var(--text); }
+  .profile-card .meta { color:var(--muted); font-size:var(--text-sm); margin-top:4px; }
+  .profile-card .card-actions { margin-top:10px; display:flex; gap:12px; }
+  .user-drop { background:var(--panel-2); border:1px dashed var(--line); border-radius:var(--radius); padding:12px 14px; margin-bottom:8px; transition:border-color .15s, background .15s; }
+  .user-drop.dragover { border-color:var(--accent); background:var(--accent-soft); border-style:solid; }
+  .user-drop > * { pointer-events: none; }
+  .user-drop button { pointer-events: auto; }
+  .user-drop .uname { font-weight:600; font-size:var(--text); }
+  .user-drop .uemail { color:var(--muted); font-size:var(--text-sm); }
+  .profile-card.dragging { opacity:.55; border-color:var(--accent); }
+  .profile-card.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; min-height:24px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; background:var(--accent-soft); color:var(--accent); border:1px solid rgba(112,181,249,.35); border-radius:16px; padding:4px 10px; font-size:13px; font-weight:600; }
+  .chip button { background:none; border:none; color:var(--muted); cursor:pointer; padding:0; font-size:14px; line-height:1; }
+  .chip button:hover { color:var(--bad); }
+  .profile-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:8px; }
+  .profile-form label { display:flex; flex-direction:column; gap:6px; font-size:var(--text-sm); color:var(--fg); font-weight:600; }
+  .profile-form input { width:100%; }
+  .hint { color:var(--muted); font-size:var(--text); margin:0 0 14px; line-height:1.4; }
+  .release-panel {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; margin-bottom:16px; box-shadow:var(--shadow);
+  }
+  .release-panel h3 { margin:0 0 10px; font-size:var(--text-lg); font-weight:600; }
+  .release-meta { color:var(--muted); font-size:var(--text-sm); margin:4px 0 14px; word-break:break-all; }
+  .upload-row { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:10px; }
+  .upload-row label { display:flex; flex-direction:column; gap:6px; font-size:var(--text-sm); color:var(--fg); font-weight:600; }
+  .progress { height:8px; background:var(--panel-2); border:1px solid var(--line); border-radius:999px; overflow:hidden; margin-top:8px; display:none; }
+  .progress > span { display:block; height:100%; width:0; background:var(--accent-strong); transition:width .15s; }
+  .scope-toggle { display:inline-flex; border:1px solid var(--line); border-radius:24px; overflow:hidden; }
+  .scope-toggle button {
+    background:transparent; color:var(--muted); border:none;
+    padding:8px 14px; cursor:pointer; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+  }
+  .scope-toggle button:hover { color:var(--fg); background:rgba(255,255,255,.04); }
+  .scope-toggle button.active { background:var(--accent-soft); color:var(--fg); }
+  .detail-drawer {
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--panel);
+    padding:18px; margin-top:16px; box-shadow:var(--shadow);
+  }
+  .detail-drawer .meta-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:14px 0; }
+  .detail-drawer .meta-grid .k { color:var(--muted); font-size:var(--text-sm); font-weight:600; }
+  .detail-drawer .meta-grid .v { font-size:var(--text); margin-top:4px; word-break:break-word; }
+  .detail-drawer .notes {
+    white-space:pre-wrap; font-size:var(--text); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:var(--radius); padding:12px 14px; margin:8px 0 14px; max-height:220px; overflow:auto;
+  }
+  .trk-range { color:var(--muted); font-size:var(--text); margin:0 0 14px; }
+  tr.trk-row { cursor:pointer; }
+  tr.trk-row:hover td { background:rgba(112,181,249,.08); }
+  tr.trk-row.selected td { background:rgba(10,102,194,.22); }
+  .pager { display:flex; justify-content:flex-end; gap:12px; margin-bottom:8px; }
+  .loading { color:var(--muted); font-size:var(--text); padding:24px; text-align:center; }
+</style>
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <div class="login">
+    <div class="login-brand">
+      <img src="/static/careercraft_icon.png" alt="" width="56" height="56" />
+      <div class="brand-name">CareerCraft</div>
+      <p class="hint">Sign in to manage CareerCraft</p>
+    </div>
+    <div>
+      <label for="email">Email</label>
+      <input id="email" placeholder="you@company.com" type="email" autocomplete="username" />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" placeholder="Password" type="password" autocomplete="current-password" />
+    </div>
+    <button class="primary" onclick="login()">Sign in</button>
+    <div id="loginErr" class="err"></div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="/static/careercraft_icon.png" alt="" width="32" height="32" />
+      <span class="brand-name">CareerCraft</span>
+      <span class="brand-badge">Admin</span>
+    </div>
+    <div class="topbar-right">
+      <span id="whoami" class="user-chip"></span>
+      <a class="btn btn-ghost" href="/deprecated" title="User app">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 18v3"/></svg>
+        <span>App</span>
+      </a>
+      <button type="button" class="btn btn-ghost" onclick="logout()" title="Sign out">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-expanded="true">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+        Menu
+      </button>
+      <nav class="sidebar-nav" id="appNav">
+        <button type="button" data-tab="dashboard" class="active" onclick="showTab('dashboard')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          Dashboard
+        </button>
+
+        <div class="nav-section">Manage</div>
+        <button type="button" data-tab="users" onclick="showTab('users')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a3 3 0 0 1 0 5.74"/></svg>
+          Users
+        </button>
+        <button type="button" data-tab="profiles" onclick="showTab('profiles')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/><circle cx="18" cy="17" r="3"/></svg>
+          Profiles
+        </button>
+        <button type="button" data-tab="licenses" onclick="showTab('licenses')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+          Licenses
+        </button>
+
+        <div class="nav-section">Product</div>
+        <button type="button" data-tab="fleet" onclick="showTab('fleet')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
+          Fleet
+        </button>
+        <button type="button" data-tab="cc-releases" onclick="showTab('cc-releases')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Releases
+        </button>
+        <button type="button" data-tab="sync" onclick="showTab('sync')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 1-15.4 6.4"/><path d="M3 12a9 9 0 0 1 15.4-6.4"/><path d="M21 4v6h-6"/><path d="M3 20v-6h6"/></svg>
+          Sync log
+        </button>
+
+        <div class="nav-section">Analytics</div>
+        <button type="button" data-tab="interviews" onclick="showTab('interviews')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+          Interviews
+        </button>
+        <button type="button" data-tab="workplan" onclick="showTab('workplan')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Work plan
+        </button>
+        <button type="button" data-tab="tracking" onclick="showTab('tracking')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16V10"/><path d="M12 16V7"/><path d="M16 16v-4"/></svg>
+          Performance
+        </button>
+        <button type="button" data-tab="errors" onclick="showTab('errors')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9L2.6 17a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+          Errors
+        </button>
+        <button type="button" data-tab="telemetry" onclick="showTab('telemetry')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          Telemetry
+        </button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <div id="tab"></div>
+    </main>
+  </div>
+</div>
+
+<script src="/static/js/common.js?v=sun1"></script>
+<script src="/static/js/interviews.js?v=sun1"></script>
+<script src="/static/js/workplans.js?v=sun1"></script>
+<script src="/static/js/performance.js?v=sun1"></script>
+<script>
+const API = "/api/v1";
+const TAB_STORAGE_KEY = "baymax_admin_tab";
+const VALID_TABS = new Set([
+  "dashboard", "users", "profiles", "licenses",
+  "fleet", "cc-releases", "sync", "interviews", "workplan", "tracking", "errors", "telemetry",
+]);
+let token = localStorage.getItem("baymax_admin_token") || "";
+const esc = (s) => BaymaxWorkspace.esc(s);
+const jsStr = (s) => BaymaxWorkspace.jsStr(s);
+const clientTzOffsetMinutes = () => BaymaxWorkspace.clientTzOffsetMinutes();
+const fmtAppliedDate = (iso) => BaymaxWorkspace.fmtAppliedDate(iso);
+const fmtCalendarDate = (iso, opts) => BaymaxWorkspace.fmtCalendarDate(iso, opts);
+const fmtInterviewWallClock = (iso, tz) => BaymaxWorkspace.fmtInterviewWallClock(iso, tz);
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}), ...(opts.headers || {}) },
+  });
+  if (res.status === 401 || res.status === 403) { logout(); throw new Error("unauthorized"); }
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json()).detail || ""; } catch (_) { try { detail = await res.text(); } catch (_) {} }
+    throw new Error(detail ? `HTTP ${res.status}: ${detail}` : `HTTP ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  document.getElementById("loginErr").textContent = "";
+  try {
+    const res = await fetch(API + "/auth/login", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error("Invalid credentials");
+    const data = await res.json();
+    token = data.access_token;
+    localStorage.setItem("baymax_admin_token", token);
+    await boot();
+  } catch (e) {
+    document.getElementById("loginErr").textContent = e.message;
+  }
+}
+
+function logout() {
+  token = ""; localStorage.removeItem("baymax_admin_token");
+  document.getElementById("appView").classList.add("hidden");
+  document.getElementById("loginView").classList.remove("hidden");
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const btn = document.getElementById("sidebarToggle");
+  if (!sidebar) return;
+  const collapsed = sidebar.classList.toggle("collapsed");
+  if (btn) btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+}
+
+async function boot() {
+  try {
+    const me = await api("/users/me");
+    if (me.role !== "admin" && me.role !== "manager") {
+      document.getElementById("loginErr").textContent = "Not an admin or manager account";
+      logout();
+      return;
+    }
+    document.getElementById("whoami").textContent = me.email;
+    document.getElementById("loginView").classList.add("hidden");
+    document.getElementById("appView").classList.remove("hidden");
+    const saved = sessionStorage.getItem(TAB_STORAGE_KEY);
+    const start = VALID_TABS.has(saved) ? saved : "dashboard";
+    showTab(start);
+  } catch (e) { logout(); }
+}
+
+function setActive(tab) {
+  document.querySelectorAll("#appNav button[data-tab]").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === tab);
+  });
+}
+
+async function showTab(tab) {
+  if (!VALID_TABS.has(tab)) tab = "dashboard";
+  setActive(tab);
+  try { sessionStorage.setItem(TAB_STORAGE_KEY, tab); } catch (_) {}
+  // On narrow screens, collapse the menu after picking a page.
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    const narrow = window.matchMedia("(max-width:900px)").matches;
+    sidebar.classList.toggle("collapsed", narrow);
+    const btn = document.getElementById("sidebarToggle");
+    if (btn) btn.setAttribute("aria-expanded", narrow ? "false" : "true");
+  }
+  const el = document.getElementById("tab");
+  el.innerHTML = "Loading…";
+  try {
+    if (tab === "dashboard") return renderDashboard(el);
+    if (tab === "fleet") return renderFleet(el);
+    if (tab === "interviews") return renderInterviews(el);
+    if (tab === "workplan") return renderWorkPlan(el);
+    if (tab === "tracking") return renderTracking(el);
+    if (tab === "sync") return renderSync(el);
+    if (tab === "licenses") return renderLicenses(el);
+    if (tab === "users") return renderUsers(el);
+    if (tab === "profiles") return renderProfiles(el);
+    if (tab === "cc-releases") return renderCcReleases(el);
+    if (tab === "errors") return renderErrors(el);
+    if (tab === "telemetry") return renderTelemetry(el);
+  } catch (e) { el.innerHTML = "Error: " + e.message; }
+}
+
+async function renderDashboard(el) {
+  const o = await api("/admin/api/overview");
+  const cards = [
+    ["Users", o.users],
+    ["Clients", o.clients],
+    ["Online", o.clients_online],
+    ["Applications", o.applications],
+    ["Interviews", o.interviews],
+    ["Errors 24h", o.errors_24h],
+  ];
+  el.innerHTML = `
+    <h2>Dashboard</h2>
+    <p class="page-sub">Live snapshot of accounts, devices, and activity.</p>
+    <div class="cards">${cards.map(([l, n]) =>
+      `<div class="card"><div class="n">${n}</div><div class="l">${l}</div></div>`
+    ).join("")}</div>
+    <div class="dash-links">
+      <button type="button" class="btn" onclick="showTab('users')">Manage users</button>
+      <button type="button" class="btn" onclick="showTab('fleet')">View fleet</button>
+      <button type="button" class="btn" onclick="showTab('licenses')">Licenses</button>
+      <button type="button" class="btn" onclick="showTab('errors')">Recent errors</button>
+    </div>`;
+}
+
+async function renderFleet(el) {
+  const rows = await api("/admin/api/fleet");
+  el.innerHTML = `
+    <h2>Fleet</h2>
+    <p class="page-sub">Desktop installs and last-seen status.</p>
+    <div class="panel"><div class="panel-body flush">
+      <table><thead><tr><th>Status</th><th>User</th><th>Version</th><th>OS</th><th>Host</th><th>Last seen</th></tr></thead><tbody>${
+        rows.map(r => `<tr><td><span class="pill ${r.online ? "on" : "off"}">${r.online ? "online" : "offline"}</span></td><td>${r.user_email || "-"}</td><td>${r.app_version || "-"}</td><td>${r.os_name || "-"}</td><td>${r.hostname || "-"}</td><td>${new Date(r.last_seen).toLocaleString()}</td></tr>`).join("")
+      }</tbody></table>
+    </div></div>`;
+}
+
+async function renderInterviews(el) {
+  BaymaxWorkspace.mountInterviews(el, {
+    role: "admin",
+    api,
+    filters: { scope: false, user: true, profile: true, status: true, type: true },
+    defaultScope: "all",
+    loadUsers: () => api("/admin/api/users"),
+  });
+}
+
+async function renderWorkPlan(el) {
+  BaymaxWorkspace.mountWorkPlan(el, {
+    role: "admin",
+    api,
+    defaultMode: "overview",
+    loadUsers: () => api("/admin/api/users"),
+  });
+}
+
+async function renderTracking(el) {
+  BaymaxWorkspace.mountPerformance(el, {
+    role: "admin",
+    api,
+  });
+}
+
+const syncState = { hours: 24, userId: "", profileKey: "" };
+
+async function renderSync(el) {
+  const [activity, users, profiles] = await Promise.all([
+    api("/admin/api/sync/activity?hours=" + syncState.hours + (syncState.userId ? "&user_id=" + encodeURIComponent(syncState.userId) : "")),
+    api("/admin/api/users").catch(() => []),
+    api("/admin/profiles").catch(() => []),
+  ]);
+  const t = activity.totals || {};
+  const userOpts = ['<option value="">All users</option>'].concat(
+    (users || []).map(u => `<option value="${esc(u.id)}"${u.id === syncState.userId ? " selected" : ""}>${esc(u.email)}</option>`)
+  ).join("");
+  const hourOpts = [[1,"1h"],[6,"6h"],[24,"24h"],[72,"3d"],[168,"7d"],[720,"30d"]]
+    .map(([v,l]) => `<option value="${v}"${v === syncState.hours ? " selected" : ""}>${l}</option>`).join("");
+  const profOpts = ['<option value="">Select a profile…</option>'].concat(
+    (profiles || []).map(p => `<option value="${esc(p.key)}"${p.key === syncState.profileKey ? " selected" : ""}>${esc(p.name || p.key)}</option>`)
+  ).join("");
+
+  const flagPill = f => {
+    const map = { insert_storm: "off", not_assigned: "off", version_conflicts: "warn" };
+    return `<span class="pill ${map[f] || "warn"}" style="margin-right:4px">${esc(f)}</span>`;
+  };
+
+  const rowsHtml = (activity.events || []).map(e => `
+    <tr>
+      <td>${e.created_at ? new Date(e.created_at).toLocaleString() : "-"}</td>
+      <td>${esc(e.user_email || e.user_id || "-")}</td>
+      <td>${esc(e.profile_name || "personal")}</td>
+      <td class="mono">${esc((e.device_id || "-").slice(0, 12))}</td>
+      <td>${e.apps_in_request + e.interviews_in_request}</td>
+      <td>${e.accepted}</td>
+      <td>${e.new_inserts}</td>
+      <td>${e.rejected_not_assigned}</td>
+      <td>${e.version_conflicts}</td>
+      <td>${(e.flags || []).map(flagPill).join("") || "-"}</td>
+    </tr>`).join("") || `<tr><td colspan="10" class="hint">No push activity in this window.</td></tr>`;
+
+  el.innerHTML = `
+    <h2>Sync log</h2>
+    <p class="page-sub">Recent client sync pushes and ingest outcomes.</p>
+    <div class="toolbar">
+      <label>Window <select id="syncHours">${hourOpts}</select></label>
+      <label>User <select id="syncUser">${userOpts}</select></label>
+    </div>
+    <div class="cards" style="margin:10px 0 16px;">
+      <div class="card"><div class="n">${t.pushes || 0}</div><div class="l">Pushes</div></div>
+      <div class="card"><div class="n">${t.accepted || 0}</div><div class="l">Accepted</div></div>
+      <div class="card"><div class="n">${t.new_inserts || 0}</div><div class="l">New inserts</div></div>
+      <div class="card"><div class="n">${t.rejected_not_assigned || 0}</div><div class="l">Not assigned</div></div>
+      <div class="card"><div class="n">${t.insert_storms || 0}</div><div class="l">Insert storms</div></div>
+    </div>
+    <table><thead><tr>
+      <th>When</th><th>User</th><th>Profile</th><th>Device</th><th>Rows</th><th>Accepted</th><th>New</th><th>Not assigned</th><th>Conflicts</th><th>Flags</th>
+    </tr></thead><tbody>${rowsHtml}</tbody></table>
+
+    <h2 style="margin-top:28px;">Per-profile shared dataset</h2>
+    <div class="toolbar">
+      <label>Profile <select id="syncProfile">${profOpts}</select></label>
+    </div>
+    <div id="syncProfileData"></div>
+
+    <h2 style="margin-top:28px;">Cross-account duplicate reconciliation</h2>
+    <p class="page-sub">Legacy duplicates from shared profiles — keep the newest copy.</p>
+    <div class="toolbar">
+      <button type="button" class="btn-primary btn" onclick="reconcileDuplicates()">Scan selected profile (or all)</button>
+      <button type="button" class="btn" onclick="repairAccountScope()">Repair personal→shared by account name</button>
+    </div>
+    <div id="syncRepairResult" class="hint" style="margin:6px 0;"></div>
+    <div id="syncReconcile"></div>`;
+
+  document.getElementById("syncHours").onchange = (ev) => { syncState.hours = parseInt(ev.target.value, 10) || 24; renderSync(el); };
+  document.getElementById("syncUser").onchange = (ev) => { syncState.userId = ev.target.value; renderSync(el); };
+  document.getElementById("syncProfile").onchange = (ev) => { syncState.profileKey = ev.target.value; loadProfileData(); };
+  if (syncState.profileKey) loadProfileData();
+}
+
+async function repairAccountScope() {
+  const out = document.getElementById("syncRepairResult");
+  if (out) out.textContent = "Repairing…";
+  let d;
+  try { d = await api("/admin/api/sync/repair-account-scope", { method: "POST" }); }
+  catch (e) {
+    if (out) out.innerHTML = `<span class="err">${esc(e.message)}</span>`;
+    return;
+  }
+  if (out) {
+    out.textContent = `Repaired ${d.repaired_applications || 0} application(s); `
+      + `${d.personal_remaining || 0} personal row(s) remain unmatched.`;
+  }
+}
+
+async function reconcileDuplicates() {
+  const out = document.getElementById("syncReconcile");
+  out.innerHTML = "Scanning…";
+  const params = new URLSearchParams();
+  if (syncState.profileKey) params.set("profile_key", syncState.profileKey);
+  let d;
+  try { d = await api("/admin/api/sync/reconcile?" + params.toString()); }
+  catch (e) { out.innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
+  const groups = d.groups || [];
+  if (!groups.length) { out.innerHTML = `<p class="hint">No cross-account duplicates found.</p>`; return; }
+  const groupHtml = groups.map(g => {
+    const removeRows = g.remove.map(r => `<label style="display:flex; gap:8px; align-items:center; font-size:13px; padding:2px 0;">
+        <input type="checkbox" class="rcnChk" value="${esc(r.id)}" checked />
+        <span class="mono">${esc(String(r.id).slice(0, 8))}</span>
+        <span>${esc(r.editor_email || "?")}</span>
+        <span style="color:var(--muted);">modified ${r.last_modified ? new Date(r.last_modified).toLocaleDateString() : "-"}</span>
+      </label>`).join("");
+    return `<div style="border:1px solid var(--line); border-radius:10px; padding:12px; margin-bottom:10px; background:var(--panel);">
+      <div style="font-weight:600;">${esc(g.company_name)} — ${esc(g.position_title)}</div>
+      <div class="hint" style="margin:2px 0 8px;">profile: ${esc(g.profile_name || g.profile_id)}${g.job_link ? ` · <a href="${esc(g.job_link)}" target="_blank" rel="noopener" style="color:var(--accent)">link</a>` : ""}</div>
+      <div style="color:var(--ok); font-size:14px; margin-bottom:6px;">Keep newest: <span class="mono">${esc(String(g.keep.id).slice(0, 8))}</span> by ${esc(g.keep.editor_email || "?")}</div>
+      <div style="color:var(--bad); font-size:14px; margin-bottom:4px;">Remove:</div>
+      ${removeRows}
+    </div>`;
+  }).join("");
+  out.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin:6px 0 10px;">
+      <span>${d.total_groups} cross-account group(s), ${d.total_removable} removable record(s)</span>
+      <button class="primary" onclick="deleteReconcileDuplicates()">Delete selected duplicates</button>
+    </div>
+    ${groupHtml}`;
+}
+
+async function deleteReconcileDuplicates() {
+  const ids = Array.from(document.querySelectorAll(".rcnChk:checked")).map(c => c.value);
+  if (!ids.length) { alert("No records selected."); return; }
+  if (!confirm(`Soft-delete ${ids.length} duplicate record(s)? The deletion will sync to clients.`)) return;
+  try {
+    const res = await api("/admin/api/tracking/duplicates/resolve", { method: "POST", body: JSON.stringify({ ids }) });
+    await reconcileDuplicates();
+    alert(`Deleted ${res.deleted} duplicate record(s).`);
+  } catch (e) { alert(e.message || String(e)); }
+}
+
+async function loadProfileData() {
+  const target = document.getElementById("syncProfileData");
+  if (!syncState.profileKey) { target.innerHTML = ""; return; }
+  target.innerHTML = "Loading…";
+  let d;
+  try { d = await api("/admin/api/profiles/" + encodeURIComponent(syncState.profileKey) + "/data"); }
+  catch (e) { target.innerHTML = "Error: " + e.message; return; }
+  const assignees = (d.assignees || []).map(a => esc(a.email)).join(", ") || "none";
+  const apps = (d.applications || []).map(a => `
+    <tr><td>${esc(a.company_name)}</td><td>${esc(a.position_title)}</td><td>${esc(a.status || "-")}</td>
+    <td>${esc(a.last_editor_email || a.last_editor_id || "-")}</td>
+    <td>${a.last_modified ? new Date(a.last_modified).toLocaleString() : "-"}</td></tr>`).join("")
+    || `<tr><td colspan="5" class="hint">No applications.</td></tr>`;
+  const ivs = (d.interviews || []).map(iv => `
+    <tr><td>${esc(iv.title)}</td><td>${iv.start_time_utc ? fmtInterviewWallClock(iv.start_time_utc, iv.timezone) : "-"}</td>
+    <td>${esc(iv.status || "-")}</td><td>${esc(iv.last_editor_email || iv.last_editor_id || "-")}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="hint">No interviews.</td></tr>`;
+  target.innerHTML = `
+    <p style="color:var(--muted);margin:6px 0;">Assigned accounts: ${assignees} · ${d.counts.applications} applications · ${d.counts.interviews} interviews</p>
+    <h3 style="margin:12px 0 6px;">Applications</h3>
+    <table><thead><tr><th>Company</th><th>Position</th><th>Status</th><th>Last editor</th><th>Last modified</th></tr></thead><tbody>${apps}</tbody></table>
+    <h3 style="margin:16px 0 6px;">Interviews</h3>
+    <table><thead><tr><th>Title</th><th>Start</th><th>Status</th><th>Last editor</th></tr></thead><tbody>${ivs}</tbody></table>`;
+}
+
+async function renderLicenses(el) {
+  const rows = await api("/license");
+  el.innerHTML = `
+    <h2>Licenses</h2>
+    <p class="page-sub">Issue license keys and manage seat activations.</p>
+    <div class="toolbar">
+      <input id="licLabel" placeholder="Label (e.g. Team A)" />
+      <input id="licSeats" type="number" min="1" value="1" style="width:90px" title="Seat limit" />
+      <button type="button" class="btn-primary btn" onclick="createLicense()">Issue license</button>
+      <span id="licMsg" class="ok"></span>
+    </div>
+    <div class="panel"><div class="panel-body flush">
+    <table><thead><tr>
+      <th>Key prefix</th><th>Label</th><th>Plan</th><th>Seats</th><th>Status</th><th>Expires</th><th>Devices</th><th>Actions</th>
+    </tr></thead><tbody>${
+      rows.map(lic => {
+        const seats = (lic.seats || []).map(s => {
+          const status = s.revoked ? "revoked" : "active";
+          const fp = s.hardware_fingerprint || s.device_id || "";
+          const revoke = s.revoked ? "" : ` <button class="link danger" onclick='revokeSeat(${jsStr(lic.id)}, ${jsStr(s.device_id || "")}, ${jsStr(fp)})'>revoke</button>`;
+          return `<li><span class="mono">${esc((fp || "").slice(0, 12))}…</span> (${status})${revoke}</li>`;
+        }).join("") || "<li>none</li>";
+        const toggle = lic.is_active
+          ? `<button class="link danger" onclick='setLicenseActive(${jsStr(lic.id)}, false)'>Deactivate</button>`
+          : `<button class="link" onclick='setLicenseActive(${jsStr(lic.id)}, true)'>Reactivate</button>`;
+        const prefix = lic.key_prefix || (lic.license_key || "").split("-")[0] || "?";
+        return `<tr>
+          <td class="mono">${esc(prefix)}-****</td>
+          <td>${esc(lic.label) || "-"}</td>
+          <td>${esc(lic.plan) || "standard"}</td>
+          <td>${lic.seats_used}/${lic.seat_limit}</td>
+          <td><span class="pill ${lic.is_active ? "on" : "off"}">${lic.is_active ? "active" : "inactive"}</span></td>
+          <td>${lic.expires_at ? new Date(lic.expires_at).toLocaleDateString() : "never"}</td>
+          <td><ul class="seat-list">${seats}</ul></td>
+          <td class="actions">${toggle}</td>
+        </tr>`;
+      }).join("") || `<tr><td colspan="8">No licenses yet. Issue one above.</td></tr>`
+    }</tbody></table>
+    </div></div>`;
+}
+
+async function createLicense() {
+  const label = document.getElementById("licLabel").value.trim();
+  const seat_limit = Math.max(1, parseInt(document.getElementById("licSeats").value, 10) || 1);
+  const msg = document.getElementById("licMsg");
+  msg.className = "ok";
+  msg.textContent = "Creating...";
+  try {
+    const created = await api("/license", {
+      method: "POST",
+      body: JSON.stringify({ label, seat_limit }),
+    });
+    // Raw key is shown once at issuance — copy it now.
+    msg.textContent = "Issued (copy now): " + created.license_key;
+    try { await navigator.clipboard.writeText(created.license_key); } catch (_) {}
+    document.getElementById("licLabel").value = "";
+    await showTab("licenses");
+    document.getElementById("licMsg").textContent = "Issued (copy now): " + created.license_key;
+  } catch (e) {
+    msg.className = "err";
+    msg.textContent = e.message;
+  }
+}
+
+async function setLicenseActive(id, active) {
+  const path = active ? `/license/${id}/reactivate` : `/license/${id}/deactivate`;
+  const verb = active ? "reactivate" : "deactivate";
+  if (!confirm(`${verb} this license?`)) return;
+  await api(path, { method: "POST" });
+  await showTab("licenses");
+}
+
+async function revokeSeat(licenseId, deviceId, fingerprint) {
+  if (!confirm(`Revoke seat for device ${fingerprint || deviceId}?`)) return;
+  const qs = fingerprint
+    ? `hardware_fingerprint=${encodeURIComponent(fingerprint)}`
+    : `device_id=${encodeURIComponent(deviceId)}`;
+  await api(`/license/${licenseId}/revoke-seat?${qs}`, { method: "POST" });
+  await showTab("licenses");
+}
+
+async function copyKey(key) {
+  try {
+    await navigator.clipboard.writeText(key);
+    const msg = document.getElementById("licMsg");
+    if (msg) { msg.className = "ok"; msg.textContent = "Copied " + key; }
+  } catch (_) {
+    prompt("Copy license key:", key);
+  }
+}
+
+async function renderUsers(el) {
+  const [users, signups] = await Promise.all([
+    api("/admin/api/users"),
+    api("/admin/api/signups"),
+  ]);
+  const signupRows = (signups || []).map(s => {
+    const created = s.created_at ? new Date(s.created_at).toLocaleString() : "-";
+    const expires = s.otp_expires_at ? new Date(s.otp_expires_at).toLocaleString() : "-";
+    return `<tr>
+      <td>${esc(s.email)}</td>
+      <td>${esc(s.name) || "-"}</td>
+      <td><span class="pill ${s.status === "otp_issued" ? "on" : "off"}">${esc(s.status)}</span></td>
+      <td>${created}</td>
+      <td>${expires}</td>
+      <td class="actions">
+        <button class="link" onclick='issueSignupOtp(${jsStr(s.id)})'>Issue OTP</button>
+        <button class="link danger" onclick='rejectSignup(${jsStr(s.id)})'>Reject</button>
+      </td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="6">No pending signups</td></tr>`;
+
+  const ROLE_OPTIONS = ["member", "manager", "supporter", "admin"];
+  const ROLE_LABELS = {
+    member: "member",
+    manager: "manager",
+    supporter: "supporter",
+    admin: "admin",
+  };
+
+  const userRows = (users || []).map(u => {
+    const toggleLabel = u.is_active ? "Deactivate" : "Activate";
+    const toggleClass = u.is_active ? "link danger" : "link";
+    const role = (u.role === "user" ? "member" : u.role) || "member";
+    const roleOpts = ROLE_OPTIONS.map(r =>
+      `<option value="${r}"${role === r ? " selected" : ""}>${ROLE_LABELS[r]}</option>`
+    ).join("");
+    return `<tr ondblclick='viewData(${jsStr(u.id)})' style="cursor:pointer" title="Double-click to view details">
+      <td>${esc(u.email)}</td>
+      <td>${esc(u.name) || "-"}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="role-cell">
+          <select class="role-${esc(role)}" aria-label="Role for ${esc(u.email)}"
+            onchange='setUserRole(${jsStr(u.id)}, this.value, ${jsStr(role)})'>
+            ${roleOpts}
+          </select>
+        </div>
+      </td>
+      <td><span class="pill ${u.is_active ? "on" : "off"}">${u.is_active ? "yes" : "no"}</span></td>
+      <td class="actions">
+        <button class="link" onclick='viewData(${jsStr(u.id)})'>View details</button>
+        <button class="link" onclick='resetUserPassword(${jsStr(u.id)}, ${jsStr(u.email)})'>Reset password</button>
+        <button class="${toggleClass}" onclick='setUserActive(${jsStr(u.id)}, ${u.is_active ? "false" : "true"})'>${toggleLabel}</button>
+        <button class="link danger" onclick='deleteUser(${jsStr(u.id)}, ${jsStr(u.email)})'>Delete</button>
+      </td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="5">No users</td></tr>`;
+
+  el.innerHTML = `
+    <h2>Users</h2>
+    <p class="page-sub">Approve signups and manage account access.</p>
+
+    <h3 class="section-title">Pending signups</h3>
+    <p class="page-sub">Issue an OTP, then send it to the user manually.</p>
+    <div id="signupMsg" class="ok" style="margin-bottom:10px;"></div>
+    <div class="panel"><div class="panel-body flush">
+    <table><thead><tr>
+      <th>Email</th><th>Name</th><th>Status</th><th>Requested</th><th>OTP expires</th><th>Actions</th>
+    </tr></thead><tbody>${signupRows}</tbody></table>
+    </div></div>
+
+    <h3 class="section-title">Accounts</h3>
+    <div class="panel"><div class="panel-body flush">
+    <table><thead><tr>
+      <th>Email</th><th>Name</th><th>Role</th><th>Active</th><th>Actions</th>
+    </tr></thead><tbody>${userRows}</tbody></table>
+    </div></div>
+    <div id="userData" style="margin-top:16px;"></div>`;
+}
+
+async function issueSignupOtp(signupId) {
+  const msg = document.getElementById("signupMsg");
+  if (msg) { msg.className = "ok"; msg.textContent = "Issuing OTP..."; }
+  try {
+    const res = await api("/admin/api/signups/" + signupId + "/issue-otp", { method: "POST" });
+    const text = `OTP for ${res.email}: ${res.otp} (expires in ${res.ttl_minutes} min — copy and send manually)`;
+    if (msg) { msg.className = "ok"; msg.textContent = text; }
+    try { await navigator.clipboard.writeText(res.otp); } catch (_) {}
+    alert(text + "\n\nCopied to clipboard when possible. This OTP will not be shown again.");
+    await showTab("users");
+    const msg2 = document.getElementById("signupMsg");
+    if (msg2) { msg2.className = "ok"; msg2.textContent = text; }
+  } catch (e) {
+    if (msg) { msg.className = "err"; msg.textContent = e.message; }
+    else alert(e.message);
+  }
+}
+
+async function rejectSignup(signupId) {
+  if (!confirm("Reject this signup request?")) return;
+  await api("/admin/api/signups/" + signupId + "/reject", { method: "POST" });
+  await showTab("users");
+}
+
+async function setUserActive(userId, active) {
+  const verb = active ? "activate" : "deactivate";
+  if (!confirm(`${verb} this user?`)) return;
+  await api("/admin/api/users/" + userId + "/set-active", {
+    method: "POST",
+    body: JSON.stringify({ is_active: !!active }),
+  });
+  await showTab("users");
+}
+
+async function resetUserPassword(userId, email) {
+  if (!confirm(`Reset password for ${email}?`)) return;
+  const password = prompt("Enter new password (min 8 characters):");
+  if (password == null) return;
+  if (password.trim().length < 8) {
+    alert("Password must be at least 8 characters.");
+    return;
+  }
+  const confirmPw = prompt("Confirm new password:");
+  if (confirmPw == null) return;
+  if (password !== confirmPw) {
+    alert("Passwords do not match.");
+    return;
+  }
+  try {
+    await api("/admin/api/users/" + userId + "/set-password", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+    alert(`Password updated for ${email}.`);
+  } catch (e) {
+    alert("Reset failed: " + (e.message || e));
+  }
+}
+
+async function setUserRole(userId, role, previousRole) {
+  const next = role === "user" ? "member" : role;
+  const prev = previousRole === "user" ? "member" : previousRole;
+  if (next === prev) return;
+  const msg = next === "admin"
+    ? "Grant admin access? This user will be able to open the admin site."
+    : `Change role to ${next}?`;
+  if (!confirm(msg)) {
+    await showTab("users");
+    return;
+  }
+  try {
+    await api("/admin/api/users/" + userId + "/set-role", {
+      method: "POST",
+      body: JSON.stringify({ role: next }),
+    });
+  } catch (e) {
+    alert(e.message || String(e));
+  }
+  await showTab("users");
+}
+
+async function deleteUser(userId, email) {
+  if (!confirm(`Permanently delete user ${email} and all their data?`)) return;
+  try {
+    await api("/admin/api/users/" + userId, { method: "DELETE" });
+    await showTab("users");
+  } catch (e) {
+    alert("Delete failed: " + (e.message || e));
+  }
+}
+
+async function viewData(userId, accountFilter) {
+  const qs = accountFilter ? ("?account=" + encodeURIComponent(accountFilter)) : "";
+  const d = await api("/admin/api/users/" + userId + "/data" + qs);
+  const profiles = d.profiles || [];
+  const accounts = d.accounts || [];
+  const profileRows = profiles.map(p => `<tr>
+      <td class="mono">${esc(p.key)}</td>
+      <td>${esc(p.name) || "-"}</td>
+      <td>${esc(p.email) || "-"}</td>
+      <td>${esc(p.phone) || "-"}</td>
+      <td>${esc(p.university_name) || "-"}</td>
+      <td class="actions">
+        <button class="link danger" onclick='unassignProfileFromUser(${jsStr(p.key)}, ${jsStr(userId)})'>Unassign</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="6">No profiles assigned. Open the Profiles tab to drag a profile onto this user.</td></tr>`;
+
+  const accountOptions = [`<option value="">All profiles/accounts</option>`]
+    .concat(accounts.map(a => {
+      const selected = (d.filter_account || "") === a ? " selected" : "";
+      return `<option value="${esc(a)}"${selected}>${esc(a)}</option>`;
+    }))
+    .join("");
+
+  document.getElementById("userData").innerHTML = `
+    <h2>${esc(d.user.email)} — details</h2>
+    <h2 style="margin-top:16px;">Assigned profiles (${profiles.length})</h2>
+    <table><thead><tr><th>Key</th><th>Name</th><th>Email</th><th>Phone</th><th>University</th><th>Actions</th></tr></thead>
+    <tbody>${profileRows}</tbody></table>
+    <div style="margin-top:28px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <h2 style="margin:0;">${d.applications.length} applications, ${d.interviews.length} interviews</h2>
+      <label>Filter by account/profile
+        <select id="accountFilter" onchange="viewData(${jsStr(userId)}, this.value)">
+          ${accountOptions}
+        </select>
+      </label>
+    </div>
+    <table><thead><tr><th>Company</th><th>Position</th><th>Status</th><th>Applied</th><th>Account</th><th>Link</th></tr></thead><tbody>${
+      d.applications.map(a => `<tr>
+        <td>${esc(a.company_name)}</td>
+        <td>${esc(a.position_title)}</td>
+        <td>${esc(a.status)}</td>
+        <td>${a.applied_date ? fmtAppliedDate(a.applied_date) : "-"}</td>
+        <td>${esc(a.account) || "-"}</td>
+        <td>${a.job_link ? `<a href="${esc(a.job_link)}" target="_blank" rel="noopener">open</a>` : "-"}</td>
+      </tr>`).join("")
+        || `<tr><td colspan="6">No applications</td></tr>`
+    }</tbody></table>
+    <h2 style="margin-top:28px;">Interviews</h2>
+    <table><thead><tr><th>Title</th><th>Start</th><th>Status</th><th>Type</th></tr></thead><tbody>${
+      d.interviews.map(iv => `<tr>
+        <td>${esc(iv.title)}</td>
+        <td>${iv.start_time_utc ? fmtInterviewWallClock(iv.start_time_utc, iv.timezone) : "-"}</td>
+        <td>${esc(iv.status)}</td>
+        <td>${esc(iv.interview_type) || "-"}</td>
+      </tr>`).join("")
+        || `<tr><td colspan="4">No interviews</td></tr>`
+    }</tbody></table>`;
+}
+
+async function unassignProfileFromUser(key, userId) {
+  if (!confirm(`Unassign profile "${key}" from this user?`)) return;
+  await api(`/admin/profiles/${encodeURIComponent(key)}/assign/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+  await viewData(userId);
+}
+
+const PROFILE_FIELDS = [
+  ["name", "Name"],
+  ["email", "Email"],
+  ["phone", "Phone"],
+  ["location", "Location"],
+  ["linkedin", "LinkedIn"],
+  ["university_name", "University"],
+  ["university_location", "University location"],
+  ["degree", "Degree"],
+  ["education_period", "Education period"],
+];
+
+let _profilesCache = [];
+let _editingProfileKey = "";
+let _dragProfileKey = "";
+let _selectedProfileKey = "";
+
+function slugifyKey(name) {
+  const base = String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 64);
+  return base || "profile";
+}
+
+function uniqueProfileKey(name) {
+  let key = slugifyKey(name);
+  const existing = new Set((_profilesCache || []).map(p => p.key));
+  if (!existing.has(key)) return key;
+  let n = 2;
+  while (existing.has(key + "-" + n)) n += 1;
+  return key + "-" + n;
+}
+
+function profileFormHtml(data = {}) {
+  const fields = PROFILE_FIELDS.map(([id, label]) => {
+    const val = data[id] ?? "";
+    return `<label>${esc(label)}<input id="pf_${id}" value="${esc(val)}" /></label>`;
+  }).join("");
+  const editing = !!data.key;
+  const title = editing ? `Edit profile: ${esc(data.name || data.key)}` : "Create profile";
+  const keyHint = editing
+    ? `<p class="hint">Key: <span class="mono">${esc(data.key)}</span> (set automatically; save path &amp; filenames are configured in the desktop app).</p>`
+    : `<p class="hint">Key is generated from the name automatically. Save path, resume filename, and cover-letter filename are set in the desktop app — not here.</p>
+       <p class="hint">To assign: drag a profile onto a user, or click a profile to select it then click <b>Assign selected</b> on a user.</p>`;
+  return `
+    <h2>${title}</h2>
+    ${keyHint}
+    <div class="profile-form">${fields}</div>
+    <div class="toolbar">
+      <button class="primary" onclick="saveProfile()">Save profile</button>
+      ${editing ? `<button class="link" onclick="showTab('profiles')">Cancel edit</button>` : `<button type="button" onclick="triggerProfileImport()">Import JSON</button>`}
+      <span id="profileMsg" class="ok"></span>
+    </div>`;
+}
+
+async function renderProfiles(el) {
+  const [profiles, users] = await Promise.all([
+    api("/admin/profiles"),
+    api("/admin/api/users"),
+  ]);
+  _profilesCache = profiles || [];
+  _editingProfileKey = "";
+  _dragProfileKey = "";
+
+  const byUser = {};
+  const profileByKey = {};
+  for (const p of _profilesCache) {
+    profileByKey[p.key] = p;
+    for (const uid of (p.assigned_user_ids || [])) {
+      (byUser[uid] || (byUser[uid] = [])).push(p.key);
+    }
+  }
+
+  const profileCards = _profilesCache.map(p => {
+    const assigned = (p.assigned_user_ids || []).length;
+    const sel = p.key === _selectedProfileKey ? " selected" : "";
+    return `
+    <div class="profile-card${sel}" draggable="true" data-profile-key="${esc(p.key)}"
+         title="Drag onto a user, or click to select then Assign">
+      <div class="title">${esc(p.name) || esc(p.key)}</div>
+      <div class="meta"><span class="mono">${esc(p.key)}</span>${p.email ? " · " + esc(p.email) : ""} · ${assigned} assigned</div>
+      <div class="card-actions">
+        <button type="button" class="link" data-action="edit" data-profile-key="${esc(p.key)}">Edit</button>
+        <button type="button" class="link danger" data-action="delete" data-profile-key="${esc(p.key)}">Delete</button>
+      </div>
+    </div>`;
+  }).join("") || `<p class="hint">No profiles yet. Create one above.</p>`;
+
+  const userCards = (users || []).map(u => {
+    const keys = byUser[u.id] || [];
+    const chips = keys.map(k => {
+      const p = profileByKey[k];
+      const label = (p && p.name) ? p.name : k;
+      return `
+      <span class="chip" title="${esc(k)}">${esc(label)}
+        <button type="button" title="Unassign" data-action="unassign" data-profile-key="${esc(k)}" data-user-id="${esc(u.id)}">&times;</button>
+      </span>`;
+    }).join("") || `<span style="color:var(--muted);font-size:14px;">Drop a profile here</span>`;
+    return `
+      <div class="user-drop" data-user-id="${esc(u.id)}">
+        <div class="uname">${esc(u.name) || esc(u.email)}</div>
+        <div class="uemail">${esc(u.email)}${u.is_active ? "" : " (inactive)"}</div>
+        <div class="chips">${chips}</div>
+        <div class="card-actions" style="margin-top:8px;">
+          <button type="button" class="link" data-action="assign-selected" data-user-id="${esc(u.id)}">Assign selected</button>
+          <button type="button" class="link" data-action="view" data-user-id="${esc(u.id)}">View details</button>
+        </div>
+      </div>`;
+  }).join("") || `<p class="hint">No users yet.</p>`;
+
+  el.innerHTML = `
+    <h2>Profiles</h2>
+    <p class="page-sub">Create profiles and assign them to users.</p>
+    <div id="profileFormWrap">${profileFormHtml()}</div>
+    <div id="userAssignDetail" style="margin-bottom:16px;"></div>
+    <div class="board" id="profileBoard">
+      <div class="board-panel">
+        <h3>Profiles (${_profilesCache.length}) — drag or select to assign</h3>
+        ${profileCards}
+      </div>
+      <div class="board-panel">
+        <h3>Users — drop here or Assign selected</h3>
+        ${userCards}
+      </div>
+    </div>`;
+
+  wireProfileBoard(el);
+}
+
+function wireProfileBoard(root) {
+  root.querySelectorAll(".profile-card").forEach(card => {
+    const key = card.dataset.profileKey || "";
+
+    card.addEventListener("click", (ev) => {
+      if (ev.target.closest("button")) return;
+      selectProfileCard(key);
+    });
+
+    card.addEventListener("dragstart", (ev) => {
+      _dragProfileKey = key;
+      _selectedProfileKey = key;
+      try {
+        ev.dataTransfer.setData("text/plain", key);
+        ev.dataTransfer.setData("text", key);
+        ev.dataTransfer.effectAllowed = "copy";
+      } catch (_) {}
+      card.classList.add("dragging");
+      selectProfileCard(key);
+    });
+
+    card.addEventListener("dragend", () => {
+      card.classList.remove("dragging");
+      root.querySelectorAll(".user-drop.dragover").forEach(z => z.classList.remove("dragover"));
+    });
+  });
+
+  root.querySelectorAll(".user-drop").forEach(zone => {
+    const userId = zone.dataset.userId || "";
+
+    const allowDrop = (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      try { ev.dataTransfer.dropEffect = "copy"; } catch (_) {}
+      zone.classList.add("dragover");
+    };
+
+    zone.addEventListener("dragenter", allowDrop);
+    zone.addEventListener("dragover", allowDrop);
+    zone.addEventListener("dragleave", (ev) => {
+      if (zone.contains(ev.relatedTarget)) return;
+      zone.classList.remove("dragover");
+    });
+    zone.addEventListener("drop", async (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      zone.classList.remove("dragover");
+      let key = _dragProfileKey;
+      try {
+        key = key || ev.dataTransfer.getData("text/plain") || ev.dataTransfer.getData("text");
+      } catch (_) {}
+      _dragProfileKey = "";
+      key = (key || "").trim();
+      if (!key) {
+        alert("Could not read the dragged profile. Click a profile to select it, then click Assign selected.");
+        return;
+      }
+      if (!userId) return;
+      try {
+        await assignProfile(key, userId);
+      } catch (e) {
+        alert(e.message || String(e));
+      }
+    });
+
+    zone.addEventListener("dblclick", (ev) => {
+      if (ev.target.closest("button")) return;
+      viewUserAssignments(userId);
+    });
+  });
+
+  // Attach to the board (recreated each render) so listeners are not stacked on #tab.
+  const board = root.querySelector("#profileBoard");
+  if (board) {
+    board.addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-action]");
+      if (!btn || !board.contains(btn)) return;
+      const action = btn.dataset.action;
+      const key = btn.dataset.profileKey || "";
+      const userId = btn.dataset.userId || "";
+      try {
+        if (action === "edit") editProfile(key);
+        else if (action === "delete") await deleteProfile(key);
+        else if (action === "unassign") await unassignProfile(key, userId);
+        else if (action === "view") viewUserAssignments(userId);
+        else if (action === "assign-selected") {
+          const selected = _selectedProfileKey || _dragProfileKey;
+          if (!selected) {
+            alert("Select a profile first (click a profile card on the left).");
+            return;
+          }
+          await assignProfile(selected, userId);
+        }
+      } catch (e) {
+        alert(e.message || String(e));
+      }
+    });
+  }
+}
+
+function selectProfileCard(key) {
+  _selectedProfileKey = key || "";
+  document.querySelectorAll(".profile-card").forEach(c => {
+    c.classList.toggle("selected", c.dataset.profileKey === _selectedProfileKey);
+  });
+}
+
+function viewUserAssignments(userId) {
+  const panel = document.getElementById("userAssignDetail");
+  if (!panel) return;
+  // Prefer live cache; refresh profiles so assignment list is current.
+  api("/admin/profiles").then(profiles => {
+    _profilesCache = profiles || [];
+    return api("/admin/api/users");
+  }).then(users => {
+    const u = (users || []).find(x => x.id === userId);
+    if (!u) { panel.innerHTML = ""; return; }
+    const assigned = (_profilesCache || []).filter(p => (p.assigned_user_ids || []).includes(userId));
+    const rows = assigned.map(p => `<tr>
+      <td class="mono">${esc(p.key)}</td>
+      <td>${esc(p.name) || "-"}</td>
+      <td>${esc(p.email) || "-"}</td>
+      <td>${esc(p.phone) || "-"}</td>
+      <td class="actions">
+        <button type="button" class="link danger" onclick='unassignProfile(${jsStr(p.key)}, ${jsStr(userId)})'>Unassign</button>
+      </td>
+    </tr>`).join("") || `<tr><td colspan="5">No profiles assigned to this user yet. Drag a profile onto the user, or select a profile and click Assign selected.</td></tr>`;
+    panel.innerHTML = `
+      <h2>Assigned to ${esc(u.name) || esc(u.email)} (${assigned.length})</h2>
+      <table><thead><tr><th>Key</th><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }).catch(e => { panel.innerHTML = `<div class="err">${esc(e.message)}</div>`; });
+}
+
+async function saveProfile() {
+  const msg = document.getElementById("profileMsg");
+  const name = (document.getElementById("pf_name").value || "").trim();
+  if (!name) {
+    if (msg) { msg.className = "err"; msg.textContent = "Name is required"; }
+    return;
+  }
+  const key = _editingProfileKey || uniqueProfileKey(name);
+  const payload = {};
+  for (const [id] of PROFILE_FIELDS) {
+    const el = document.getElementById("pf_" + id);
+    payload[id] = el ? el.value.trim() : "";
+  }
+  if (msg) { msg.className = "ok"; msg.textContent = "Saving..."; }
+  try {
+    await api("/admin/profiles/" + encodeURIComponent(key), {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    await showTab("profiles");
+  } catch (e) {
+    if (msg) { msg.className = "err"; msg.textContent = e.message; }
+    else alert(e.message);
+  }
+}
+
+function triggerProfileImport() {
+  let input = document.getElementById("profileImportFile");
+  if (!input) {
+    input = document.createElement("input");
+    input.type = "file";
+    input.id = "profileImportFile";
+    input.accept = "application/json,.json";
+    input.style.display = "none";
+    input.addEventListener("change", handleProfileImport);
+    document.body.appendChild(input);
+  }
+  input.value = "";
+  input.click();
+}
+
+async function handleProfileImport(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const msg = document.getElementById("profileMsg");
+  try {
+    const data = JSON.parse(await file.text());
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+      throw new Error("File must contain a single profile object");
+    }
+    // Key mirrors the desktop client's convention: the JSON filename.
+    const baseName = file.name.replace(/\.json$/i, "");
+    const key = slugifyKey(baseName);
+    if ((_profilesCache || []).some(p => p.key === key)) {
+      if (!confirm(`A profile with key "${key}" already exists. Overwrite it with this file?`)) return;
+    }
+    // Only send admin-editable identity fields; client-only paths are ignored.
+    const payload = {};
+    for (const [id] of PROFILE_FIELDS) {
+      payload[id] = data[id] == null ? "" : String(data[id]).trim();
+    }
+    if (!payload.name) payload.name = baseName;
+    if (msg) { msg.className = "ok"; msg.textContent = `Importing ${file.name}...`; }
+    await api("/admin/profiles/" + encodeURIComponent(key), {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    await showTab("profiles");
+    const msg2 = document.getElementById("profileMsg");
+    if (msg2) { msg2.className = "ok"; msg2.textContent = `Imported profile "${key}" from ${file.name}`; }
+  } catch (e) {
+    if (msg) { msg.className = "err"; msg.textContent = "Import failed: " + e.message; }
+    else alert("Import failed: " + e.message);
+  }
+}
+
+function editProfile(key) {
+  const p = _profilesCache.find(x => x.key === key);
+  if (!p) return;
+  _editingProfileKey = key;
+  const wrap = document.getElementById("profileFormWrap");
+  if (wrap) {
+    wrap.innerHTML = profileFormHtml(p);
+    wrap.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+async function deleteProfile(key) {
+  if (
+    !confirm(
+      `Delete profile "${key}" permanently?\n\n` +
+        `This permanently deletes ALL applications and interviews for this profile, ` +
+        `plus all user assignments. This cannot be undone.`
+    )
+  ) {
+    return;
+  }
+  const res = await api("/admin/profiles/" + encodeURIComponent(key), { method: "DELETE" });
+  const apps = res?.deleted_applications ?? 0;
+  const ivs = res?.deleted_interviews ?? 0;
+  alert(`Profile deleted (${apps} application(s), ${ivs} interview(s) removed).`);
+  await showTab("profiles");
+}
+
+async function assignProfile(key, userId) {
+  const msg = document.getElementById("profileMsg");
+  if (msg) { msg.className = "ok"; msg.textContent = `Assigning ${key}...`; }
+  await api(`/admin/profiles/${encodeURIComponent(key)}/assign/${encodeURIComponent(userId)}`, {
+    method: "POST",
+  });
+  _selectedProfileKey = key;
+  await showTab("profiles");
+  viewUserAssignments(userId);
+  const msg2 = document.getElementById("profileMsg");
+  if (msg2) { msg2.className = "ok"; msg2.textContent = `Assigned "${key}"`; }
+}
+
+async function unassignProfile(key, userId) {
+  await api(`/admin/profiles/${encodeURIComponent(key)}/assign/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+  });
+  await showTab("profiles");
+  viewUserAssignments(userId);
+}
+
+let _errorRows = [];
+
+async function renderErrors(el) {
+  _errorRows = await api("/admin/api/errors");
+  el.innerHTML = `
+    <h2>Errors</h2>
+    <p class="page-sub">Recent error reports from desktop clients. Click a row for traceback.</p>
+    <div class="panel"><div class="panel-body flush">
+      <table><thead><tr><th>Time</th><th>Device</th><th>Version</th><th>Type</th><th>Message</th></tr></thead><tbody>${
+        _errorRows.map(r => {
+          const device = (r.device_id || "").slice(0, 12) || "-";
+          const msg = (r.message || "").slice(0, 160);
+          return `<tr class="trk-row" onclick="openErrorDetail(${Number(r.id)})">
+            <td>${r.created_at ? new Date(r.created_at).toLocaleString() : "-"}</td>
+            <td class="mono">${esc(device)}</td>
+            <td>${esc(r.app_version || "-")}</td>
+            <td>${esc(r.error_type || "-")}</td>
+            <td>${esc(msg)}</td>
+          </tr>`;
+        }).join("")
+        || `<tr><td colspan="5" class="hint">No recent error reports.</td></tr>`
+      }</tbody></table>
+    </div></div>
+    <div id="errDetail"></div>`;
+}
+
+function openErrorDetail(id) {
+  const e = _errorRows.find(r => r.id === id);
+  const detail = document.getElementById("errDetail");
+  if (!detail || !e) return;
+  document.querySelectorAll("#tab tr.trk-row").forEach(tr => {
+    const onclick = tr.getAttribute("onclick") || "";
+    tr.classList.toggle("selected", onclick.includes("(" + id + ")"));
+  });
+  detail.innerHTML = `
+    <div class="detail-drawer">
+      <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:flex-start;">
+        <div>
+          <h2 style="margin:0;">${esc(e.error_type || "Error")}</h2>
+          <p class="hint" style="margin:4px 0 0;">${e.created_at ? new Date(e.created_at).toLocaleString() : ""}</p>
+        </div>
+        <button class="link" onclick="closeErrorDetail()">Close</button>
+      </div>
+      <div class="meta-grid">
+        <div><div class="k">User</div><div class="v">${esc(e.user_email || e.user_id || "-")}</div></div>
+        <div><div class="k">Device</div><div class="v mono">${esc(e.device_id || "-")}</div></div>
+        <div><div class="k">Version</div><div class="v">${esc(e.app_version || "-")}</div></div>
+        <div><div class="k">Type</div><div class="v">${esc(e.error_type || "-")}</div></div>
+      </div>
+      <h2 style="margin:0 0 4px;">Message</h2>
+      <div class="notes">${e.message ? esc(e.message) : "<span style='color:var(--muted)'>No message</span>"}</div>
+      <h2 style="margin:12px 0 4px;">Traceback</h2>
+      <div class="notes">${e.traceback ? esc(e.traceback) : "<span style='color:var(--muted)'>No traceback</span>"}</div>
+      <p class="hint" style="margin:8px 0 0;">May include local paths from the client.</p>
+    </div>`;
+}
+
+function closeErrorDetail() {
+  const detail = document.getElementById("errDetail");
+  if (detail) detail.innerHTML = "";
+  document.querySelectorAll("#tab tr.trk-row.selected").forEach(tr => tr.classList.remove("selected"));
+}
+
+function formatBytes(n) {
+  if (!n && n !== 0) return "-";
+  if (n < 1024) return n + " B";
+  if (n < 1024 * 1024) return (n / 1024).toFixed(1) + " KB";
+  return (n / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+async function renderCcReleases(el) {
+  const data = await api("/admin/api/cc-releases");
+  const files = data.files || [];
+  const releases = data.releases || [];
+  const byKind = Object.fromEntries(files.map(f => [f.kind, f]));
+  const app = byKind.app || {};
+  const cert = byKind.cert || {};
+
+  el.innerHTML = `
+    <h2>Releases</h2>
+    <p class="page-sub">Publish builds to <a class="link" href="/userportal/" target="_blank" rel="noopener">/userportal</a> for client auto-update.</p>
+
+    <div class="release-panel">
+      <h3>CareerCraft App <span class="pill ${app.exists ? "on" : "off"}">${app.exists ? "published" : "missing"}</span></h3>
+      <div class="release-meta">
+        ${app.filename || "CareerCraft.exe"}
+        &middot; ${formatBytes(app.size_bytes)}
+        ${app.modified_at ? " &middot; updated " + new Date(app.modified_at).toLocaleString() : ""}
+        ${app.sha256 ? "<br/><span class='mono'>sha256 " + app.sha256 + "</span>" : ""}
+      </div>
+      <div class="upload-row">
+        <label>File (.exe)<input id="ccAppFile" type="file" accept=".exe,application/octet-stream" /></label>
+        <label>Version<input id="ccAppVersion" placeholder="e.g. 2.8.137 (same as splash)" /></label>
+        <label>Channel
+          <select id="ccAppChannel"><option value="stable">stable</option><option value="beta">beta</option></select>
+        </label>
+        <label style="flex-direction:row;align-items:center;gap:8px;margin-bottom:8px;">
+          <input id="ccAppMandatory" type="checkbox" /> Mandatory update
+        </label>
+      </div>
+      <div class="upload-row">
+        <label style="flex:1;min-width:220px;">Release notes<textarea id="ccAppNotes" rows="2" style="background:var(--panel-2);border:1px solid var(--line);color:var(--fg);padding:9px 11px;border-radius:8px;resize:vertical;"></textarea></label>
+      </div>
+      <button class="primary" id="ccAppUploadBtn" onclick="uploadCcRelease('app')">Upload App</button>
+      <div class="progress" id="ccAppProgress"><span></span></div>
+      <div id="ccAppMsg" class="ok" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="release-panel">
+      <h3>Signing Certificate <span class="pill ${cert.exists ? "on" : "off"}">${cert.exists ? "published" : "missing"}</span></h3>
+      <div class="release-meta">
+        ${cert.filename || "TekAbsurd_cert.cer"}
+        &middot; ${formatBytes(cert.size_bytes)}
+        ${cert.modified_at ? " &middot; updated " + new Date(cert.modified_at).toLocaleString() : ""}
+      </div>
+      <div class="upload-row">
+        <label>File (.cer)<input id="ccCertFile" type="file" accept=".cer,.crt,.pem,application/pkix-cert" /></label>
+        <button class="primary" id="ccCertUploadBtn" onclick="uploadCcRelease('cert')">Upload Certificate</button>
+      </div>
+      <div class="progress" id="ccCertProgress"><span></span></div>
+      <div id="ccCertMsg" class="ok" style="margin-top:8px;"></div>
+    </div>
+
+    <h2 style="margin-top:22px;">Published manifests</h2>
+    <table><thead><tr><th>Version</th><th>Channel</th><th>Mandatory</th><th>SHA256</th><th>Published</th><th>Notes</th></tr></thead>
+    <tbody>${
+      releases.length
+        ? releases.map(r => `<tr>
+            <td class="mono">${r.version}</td>
+            <td>${r.channel}</td>
+            <td>${r.mandatory ? "yes" : "no"}</td>
+            <td class="mono">${(r.sha256 || "").slice(0, 16)}${r.sha256 ? "…" : "-"}</td>
+            <td>${r.published_at ? new Date(r.published_at).toLocaleString() : "-"}</td>
+            <td>${(r.notes || "").slice(0, 80)}</td>
+          </tr>`).join("")
+        : `<tr><td colspan="6" style="color:var(--muted)">No release manifests yet. Upload an app with a version to create one.</td></tr>`
+    }</tbody></table>
+  `;
+}
+
+function uploadCcRelease(kind) {
+  const isApp = kind === "app";
+  const fileInput = document.getElementById(isApp ? "ccAppFile" : "ccCertFile");
+  const msg = document.getElementById(isApp ? "ccAppMsg" : "ccCertMsg");
+  const btn = document.getElementById(isApp ? "ccAppUploadBtn" : "ccCertUploadBtn");
+  const prog = document.getElementById(isApp ? "ccAppProgress" : "ccCertProgress");
+  const bar = prog ? prog.querySelector("span") : null;
+  const file = fileInput && fileInput.files && fileInput.files[0];
+  if (!file) {
+    msg.className = "err";
+    msg.textContent = "Choose a file first.";
+    return;
+  }
+
+  const form = new FormData();
+  form.append("kind", kind);
+  form.append("file", file);
+  if (isApp) {
+    form.append("version", (document.getElementById("ccAppVersion").value || "").trim());
+    form.append("channel", document.getElementById("ccAppChannel").value || "stable");
+    form.append("notes", document.getElementById("ccAppNotes").value || "");
+    form.append("mandatory", document.getElementById("ccAppMandatory").checked ? "true" : "false");
+  }
+
+  msg.className = "ok";
+  msg.textContent = "Uploading…";
+  btn.disabled = true;
+  if (prog) { prog.style.display = "block"; bar.style.width = "0%"; }
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", API + "/admin/api/cc-releases/upload");
+  xhr.setRequestHeader("Authorization", "Bearer " + token);
+  xhr.upload.onprogress = (ev) => {
+    if (!ev.lengthComputable || !bar) return;
+    bar.style.width = Math.round((ev.loaded / ev.total) * 100) + "%";
+  };
+  xhr.onload = async () => {
+    btn.disabled = false;
+    if (xhr.status === 401 || xhr.status === 403) { logout(); return; }
+    let body = {};
+    try { body = JSON.parse(xhr.responseText || "{}"); } catch (_) {}
+    if (xhr.status < 200 || xhr.status >= 300) {
+      msg.className = "err";
+      msg.textContent = body.detail ? `HTTP ${xhr.status}: ${body.detail}` : `HTTP ${xhr.status}`;
+      return;
+    }
+    msg.className = "ok";
+    msg.textContent = `Uploaded ${body.filename} (${formatBytes(body.size_bytes)})`
+      + (body.release ? ` · published ${body.release.version}` : "");
+    if (bar) bar.style.width = "100%";
+    await showTab("cc-releases");
+  };
+  xhr.onerror = () => {
+    btn.disabled = false;
+    msg.className = "err";
+    msg.textContent = "Upload failed (network error).";
+  };
+  xhr.send(form);
+}
+
+async function renderTelemetry(el) {
+  const [summary, recent] = await Promise.all([
+    api("/admin/api/telemetry/summary"),
+    api("/admin/api/telemetry/recent"),
+  ]);
+  el.innerHTML = `
+    <h2>Telemetry</h2>
+    <p class="page-sub">Aggregated event counts and recent client events.</p>
+    <div class="panel"><div class="panel-body flush">
+      <table><thead><tr><th>Event</th><th>Count</th></tr></thead><tbody>${
+        summary.map(r => `<tr><td>${esc(r.event)}</td><td>${esc(r.count)}</td></tr>`).join("")
+        || `<tr><td colspan="2" class="hint">No telemetry events yet.</td></tr>`
+      }</tbody></table>
+    </div></div>
+    <h2 style="margin-top:22px;">Recent events</h2>
+    <div class="panel"><div class="panel-body flush">
+      <table><thead><tr><th>Time</th><th>Event</th><th>Version</th><th>Device</th><th>Properties</th></tr></thead><tbody>${
+        recent.map(r => {
+          const device = (r.device_id || "").slice(0, 12) || "-";
+          let props = "-";
+          if (r.properties && typeof r.properties === "object") {
+            try { props = JSON.stringify(r.properties); } catch (_) { props = "-"; }
+          }
+          return `<tr>
+            <td>${r.created_at ? new Date(r.created_at).toLocaleString() : "-"}</td>
+            <td>${esc(r.event || "-")}</td>
+            <td>${esc(r.app_version || "-")}</td>
+            <td class="mono">${esc(device)}</td>
+            <td class="mono">${esc(props)}</td>
+          </tr>`;
+        }).join("")
+        || `<tr><td colspan="5" class="hint">No recent telemetry events.</td></tr>`
+      }</tbody></table>
+    </div></div>`;
+}
+
+document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+document.getElementById("email").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+
+if (token) boot();
+</script>
+</body>
+</html>

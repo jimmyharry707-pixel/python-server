@@ -1,0 +1,17 @@
+# Baymax central server (FastAPI)
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+SQLAlchemy==2.0.36
+pydantic==2.10.4
+pydantic-settings==2.7.1
+python-jose[cryptography]==3.3.0
+cryptography>=42.0.0
+bcrypt==4.2.1
+python-multipart==0.0.20
+email-validator==2.2.0
+
+# Postgres driver (prod). SQLite works out of the box for dev.
+psycopg[binary]==3.2.3
+
+# Daily review scan: reading resume and cover letter PDFs.
+pypdf==5.1.0

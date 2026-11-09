@@ -1,0 +1,83 @@
+# Production-ish stack: Postgres + API + nginx (TLS termination).
+# For local dev you can run just `uvicorn server.main:app --reload` with SQLite.
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: baymax
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-baymax}
+      POSTGRES_DB: baymax
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U baymax"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ..
+      dockerfile: server/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BAYMAX_ENVIRONMENT: production
+      # Password special chars (@ : / # ? etc.) MUST be percent-encoded in the URL.
+      # Prefer setting BAYMAX_DATABASE_URL explicitly, or set POSTGRES_PASSWORD_URLENC
+      # (e.g. python -c "import urllib.parse,os; print(urllib.parse.quote(os.environ['POSTGRES_PASSWORD'], safe=''))").
+      BAYMAX_DATABASE_URL: ${BAYMAX_DATABASE_URL:-postgresql+psycopg://baymax:${POSTGRES_PASSWORD_URLENC:-${POSTGRES_PASSWORD:-baymax}}@db:5432/baymax}
+      BAYMAX_JWT_SECRET: ${BAYMAX_JWT_SECRET:?set a strong secret}
+      # PKCS8 PEM of an Ed25519 private key used to sign license leases. REQUIRED in
+      # production — without it, license activation fails with a 500. Generate with:
+      #   python -c "from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey; from cryptography.hazmat.primitives import serialization as s; print(Ed25519PrivateKey.generate().private_bytes(s.Encoding.PEM, s.PrivateFormat.PKCS8, s.NoEncryption()).decode())"
+      # Export it in your shell (one line, with \n for newlines) before running compose:
+      #   export BAYMAX_LICENSE_SIGNING_KEY='-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n'
+      BAYMAX_LICENSE_SIGNING_KEY: ${BAYMAX_LICENSE_SIGNING_KEY:?set an Ed25519 signing key (see comment)}
+      # Sidekick / SnowLink lease keys, generated the same way. Optional: until
+      # one is set, that app's keys can't be activated (CareerCraft unaffected).
+      BAYMAX_LICENSE_SIGNING_KEY_SIDEKICK: ${BAYMAX_LICENSE_SIGNING_KEY_SIDEKICK:-}
+      BAYMAX_LICENSE_SIGNING_KEY_SNOWLINK: ${BAYMAX_LICENSE_SIGNING_KEY_SNOWLINK:-}
+      BAYMAX_CORS_ORIGINS: ${BAYMAX_CORS_ORIGINS:-*}
+      BAYMAX_BOOTSTRAP_ADMIN_EMAIL: ${BAYMAX_BOOTSTRAP_ADMIN_EMAIL:-admin@baymax.example.com}
+      BAYMAX_BOOTSTRAP_ADMIN_PASSWORD: ${BAYMAX_BOOTSTRAP_ADMIN_PASSWORD:?set an admin password}
+      # Shared with nginx so admin uploads appear on /userportal immediately.
+      BAYMAX_RELEASE_FILES_DIR: /data/userportal-downloads
+    volumes:
+      # Keep profile photos in the repository's server/data directory so existing
+      # files are visible inside the container and survive image rebuilds.
+      - ./data/avatars:/app/server/data/avatars
+      # Daily review scan uploads, kept across image rebuilds while a scan is
+      # open. The server deletes them when the scan closes or after 48 hours.
+      - ./data/scans:/app/server/data/scans
+      - /root/TekAbsurd_cert.cer:/data/userportal-downloads/TekAbsurd_cert.cer
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
+  nginx:
+    image: nginx:1.27
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./nginx/baymax.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+      - ./nginx/userportal/index.html:/usr/share/nginx/userportal/index.html:ro
+      - /root/TekAbsurd_cert.cer:/usr/share/nginx/userportal/downloads/TekAbsurd_cert.cer:ro
+
+volumes:
+  pgdata:

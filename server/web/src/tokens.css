@@ -1,0 +1,186 @@
+/**
+ * Stage design tokens — Absurd Technologies brand.
+ * Mirrors the palette used by example.com and career.example.com.
+ * Import after Tabler so --tblr-* overrides apply; use --stage-* everywhere else.
+ */
+
+:root {
+  /* Brand / Tabler bridge */
+  --tblr-primary: #1261d7;
+  --tblr-primary-rgb: 18, 97, 215;
+  --tblr-primary-fg: #ffffff;
+  --tblr-link-color: #1261d7;
+  --tblr-link-color-rgb: 18, 97, 215;
+  --tblr-link-hover-color: #0849a3;
+  --tblr-link-hover-color-rgb: 8, 73, 163;
+  --tblr-font-sans-serif: "Inter Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --tblr-body-font-size: var(--stage-text-base);
+  --tblr-border-radius: var(--stage-radius);
+  --tblr-body-bg: #f8f9f6;
+  --tblr-body-color: #232926;
+  --tblr-secondary-color: #4e5853;
+  --tblr-muted: #4e5853;
+  --tblr-heading-color: #121614;
+  --tblr-border-color: rgba(18, 22, 20, 0.12);
+  --tblr-border-color-translucent: rgba(18, 22, 20, 0.12);
+  --tblr-bg-surface: #ffffff;
+  --tblr-bg-surface-secondary: rgba(18, 22, 20, 0.025);
+  --tblr-bg-surface-tertiary: rgba(18, 22, 20, 0.045);
+  --tblr-bg-forms: #ffffff;
+
+  /* Brand palette (shared with login) */
+  --stage-brand: #1261d7;
+  --stage-brand-rgb: 18, 97, 215;
+  --stage-brand-hover: #0849a3;
+  --stage-brand-on: #ffffff;
+  --stage-accent: #4196ff;
+  --stage-sky: #4196ff;
+  --stage-cyan: #0c8599;
+  --stage-violet: #6b4fd8;
+  --stage-slate: #121614;
+
+  /* Type */
+  --stage-font-sans: var(--tblr-font-sans-serif);
+  --stage-font-heading: "Space Grotesk Variable", "Inter Variable", system-ui, sans-serif;
+  --stage-font-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  --stage-text-2xs: 0.6875rem; /* 11px — crowns / micro */
+  --stage-text-xs: 0.75rem; /* 12px — labels, badges */
+  --stage-text-sm: 0.8125rem; /* 13px — secondary / footer */
+  --stage-text-base: 0.875rem; /* 14px — body */
+  --stage-text-md: 0.9375rem; /* 15px — nav, tables */
+  --stage-text-lg: 1.0625rem; /* 17px — page title */
+  --stage-text-xl: 1.25rem; /* 20px — icons / detail */
+  --stage-text-2xl: 1.5rem;
+  --stage-text-metric: 1.75rem;
+  --stage-leading-tight: 1.2;
+  --stage-leading: 1.45;
+  --stage-tracking-label: 0.18em;
+  --stage-tracking-heading: -0.03em;
+
+  /* Space */
+  --stage-space-1: 0.25rem;
+  --stage-space-2: 0.5rem;
+  --stage-space-3: 0.75rem;
+  --stage-space-4: 1rem;
+  --stage-space-5: 1.25rem;
+  --stage-space-6: 1.5rem;
+
+  /* Radius — pills for buttons, soft rounding elsewhere */
+  --stage-radius-sm: 0.375rem;
+  --stage-radius: 0.5rem;
+  --stage-radius-lg: 0.5rem;
+  --stage-radius-xl: 1.5rem;
+  --stage-radius-pill: 999px;
+
+  /* Motion — short, linear-ish ease; no bounce */
+  --stage-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --stage-dur-fast: 120ms;
+  --stage-dur: 180ms;
+
+  /* Controls */
+  --stage-control-h: 2.25rem; /* 36px */
+  --stage-control-h-sm: 2rem; /* 32px */
+  --stage-icon-btn: 2.25rem;
+  --stage-icon-btn-sm: 2rem;
+  --stage-icon-glyph: 1.125rem;
+  --stage-icon-glyph-sm: 1rem;
+  --stage-nav-icon: 1.125rem;
+  --stage-nav-row-py: 0.45rem;
+  --stage-topbar-height: 4.75rem;
+
+  /* Light surfaces: warm paper page, white cards, hairline borders */
+  --stage-page: #f8f9f6;
+  --stage-surface: #ffffff;
+  --stage-line: rgba(18, 22, 20, 0.12);
+  --stage-line-strong: rgba(18, 22, 20, 0.24);
+  --stage-chrome-bg: #f8f9f6;
+  --stage-chrome-bg-solid: #ffffff;
+  --stage-chrome-border: rgba(18, 22, 20, 0.12);
+  --stage-chrome-shadow: 0 0.5rem 2rem -1.25rem rgba(18, 22, 20, 0.3);
+  --stage-sidebar-bg: #f8f9f6;
+  --stage-sidebar-bg-solid: #f8f9f6;
+  --stage-sidebar-border: rgba(18, 22, 20, 0.12);
+  --stage-nav-text: #232926;
+  --stage-nav-muted: #4e5853;
+  --stage-nav-icon: #4e5853;
+  --stage-nav-active-icon: #1261d7;
+  --stage-nav-hover-bg: rgba(18, 22, 20, 0.045);
+  --stage-nav-active-bg: rgba(18, 97, 215, 0.1);
+  --stage-brand-name: #121614;
+  --stage-title-text: #121614;
+  --stage-muted: #4e5853;
+  --stage-card-bg: #ffffff;
+  --stage-card-border: rgba(18, 22, 20, 0.12);
+  --stage-page-bg: #f8f9f6;
+
+  /* Surfaces / interaction */
+  --stage-hover-bg: rgba(18, 22, 20, 0.04);
+  --stage-hover-bg-strong: rgba(18, 22, 20, 0.07);
+  --stage-active-bg: rgba(var(--stage-brand-rgb), 0.12);
+  --stage-focus-ring: 0 0 0 2px rgba(var(--stage-brand-rgb), 0.4);
+  --stage-card-shadow: none;
+}
+
+html[data-bs-theme="dark"] {
+  --tblr-primary: #6db1ff;
+  --tblr-primary-rgb: 109, 177, 255;
+  --tblr-primary-fg: #071427;
+  --tblr-link-color: #6db1ff;
+  --tblr-link-color-rgb: 109, 177, 255;
+  --tblr-link-hover-color: #a0cdff;
+  --tblr-link-hover-color-rgb: 160, 205, 255;
+  --tblr-body-bg: #0c100e;
+  --tblr-body-color: #e2e8e4;
+  --tblr-secondary-color: #a6b1aa;
+  --tblr-muted: #a6b1aa;
+  --tblr-heading-color: #f4f7f2;
+  --tblr-border-color: rgba(244, 247, 242, 0.14);
+  --tblr-border-color-translucent: rgba(244, 247, 242, 0.14);
+  --tblr-bg-surface: #121715;
+  --tblr-bg-surface-secondary: rgba(244, 247, 242, 0.04);
+  --tblr-bg-surface-tertiary: rgba(244, 247, 242, 0.07);
+  --tblr-bg-forms: #121715;
+
+  --stage-brand: #6db1ff;
+  --stage-brand-rgb: 109, 177, 255;
+  --stage-brand-hover: #a0cdff;
+  --stage-brand-on: #071427;
+  --stage-cyan: #3cc4d9;
+  --stage-violet: #a894ff;
+  --stage-slate: #f4f7f2;
+
+  --stage-page: #0c100e;
+  --stage-surface: #121715;
+  --stage-line: rgba(244, 247, 242, 0.14);
+  --stage-line-strong: rgba(244, 247, 242, 0.28);
+  --stage-chrome-bg: #0c100e;
+  --stage-chrome-bg-solid: #121715;
+  --stage-chrome-border: rgba(244, 247, 242, 0.14);
+  --stage-chrome-shadow: 0 0.5rem 2rem -1.25rem rgba(0, 0, 0, 0.7);
+  --stage-sidebar-bg: #0c100e;
+  --stage-sidebar-bg-solid: #0c100e;
+  --stage-sidebar-border: rgba(244, 247, 242, 0.14);
+  --stage-nav-text: #e2e8e4;
+  --stage-nav-muted: #a6b1aa;
+  --stage-nav-icon: #a6b1aa;
+  --stage-nav-active-icon: #6db1ff;
+  --stage-nav-hover-bg: rgba(244, 247, 242, 0.07);
+  --stage-nav-active-bg: rgba(109, 177, 255, 0.14);
+  --stage-brand-name: #ffffff;
+  --stage-title-text: #f4f7f2;
+  --stage-muted: #a6b1aa;
+  --stage-card-bg: #121715;
+  --stage-card-border: rgba(244, 247, 242, 0.14);
+  --stage-page-bg: #0c100e;
+  --stage-hover-bg: rgba(244, 247, 242, 0.06);
+  --stage-hover-bg-strong: rgba(244, 247, 242, 0.1);
+  --stage-active-bg: rgba(var(--stage-brand-rgb), 0.16);
+  --stage-focus-ring: 0 0 0 2px rgba(var(--stage-brand-rgb), 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --stage-dur-fast: 0ms;
+    --stage-dur: 0ms;
+  }
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <meta name="theme-color" content="#f8f9f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0c100e" media="(prefers-color-scheme: dark)" />
+    <title>Absurd Technologies</title>
+    <script>
+      try {
+        var stored = localStorage.getItem("baymax_stage_theme");
+        var dark =
+          stored === "dark" ||
+          (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.setAttribute("data-bs-theme", dark ? "dark" : "light");
+      } catch (e) {
+        document.documentElement.setAttribute("data-bs-theme", "light");
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/react/main.tsx"></script>
+  </body>
+</html>

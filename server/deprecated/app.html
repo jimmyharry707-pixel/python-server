@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CareerCraft</title>
+<link rel="icon" href="/static/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" href="/static/careercraft_icon.png" />
+<link rel="apple-touch-icon" href="/static/careercraft_icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/workspace.css?v=sun1" />
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#000000;
+    --bg-elev:#1b1f23;
+    --panel:#1b1f23;
+    --panel-2:#242424;
+    --surface:#2a2e33;
+    --line:rgba(255,255,255,.12);
+    --line-strong:rgba(255,255,255,.22);
+    --fg:rgba(255,255,255,.92);
+    --muted:rgba(255,255,255,.6);
+    --accent:#70b5f9;
+    --accent-strong:#0a66c2;
+    --accent-soft:rgba(10,102,194,.28);
+    --ok:#57c26b;
+    --bad:#f87171;
+    --warn:#e7a33e;
+    --hour-h:48px;
+    --time-w:56px;
+    --conflict:#ff8f6b;
+    --font:"Source Sans 3", "Segoe UI", sans-serif;
+    --font-brand:"Source Sans 3", "Segoe UI", sans-serif;
+    --radius:8px;
+    --shadow:0 0 0 1px rgba(255,255,255,.04), 0 4px 12px rgba(0,0,0,.35);
+    --text-sm:14px;
+    --text:15px;
+    --text-lg:16px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin:0;
+    font-family:var(--font);
+    font-size:var(--text);
+    line-height:1.45;
+    background:var(--bg);
+    color:var(--fg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .ico { width:18px; height:18px; display:block; flex-shrink:0; }
+  .ico-sm { width:16px; height:16px; }
+
+  .topbar {
+    position:sticky; top:0; z-index:30;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px; height:56px;
+    background:var(--bg-elev);
+    border-bottom:1px solid var(--line);
+    gap:16px;
+  }
+  .brand {
+    display:flex; align-items:center; gap:10px; min-width:0;
+    text-decoration:none; color:inherit;
+  }
+  .brand-logo {
+    width:32px; height:32px; border-radius:4px;
+    object-fit:contain; flex-shrink:0; background:#000;
+  }
+  .brand-name {
+    font-family:var(--font-brand);
+    font-size:20px; font-weight:700;
+    letter-spacing:-.01em; line-height:1; white-space:nowrap;
+  }
+  .topbar-right {
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;
+  }
+  .user-chip {
+    color:var(--muted); font-size:var(--text-sm);
+    padding:6px 12px; border-radius:16px;
+    background:var(--panel-2); border:1px solid var(--line);
+    max-width:280px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .admin-layout {
+    display:flex; align-items:stretch;
+    min-height:calc(100vh - 56px);
+  }
+  .sidebar {
+    width:248px; flex-shrink:0;
+    background:var(--bg-elev);
+    border-right:1px solid var(--line);
+    padding:16px 12px 32px;
+    overflow-y:auto;
+  }
+  .sidebar-nav { display:flex; flex-direction:column; gap:2px; }
+  .nav-section {
+    margin:18px 10px 8px;
+    font-size:12px; font-weight:600;
+    color:var(--muted);
+  }
+  .nav-section:first-child { margin-top:4px; }
+  .sidebar-nav button {
+    display:flex; align-items:center; gap:12px; width:100%;
+    background:transparent; color:var(--muted);
+    border:none; border-radius:8px;
+    padding:10px 12px;
+    cursor:pointer; font-size:var(--text-lg); font-family:inherit; font-weight:500;
+    text-align:left; transition:color .12s, background .12s;
+  }
+  .sidebar-nav button:hover { color:var(--fg); background:rgba(255,255,255,.06); }
+  .sidebar-nav button.active {
+    color:var(--fg); background:var(--accent-soft);
+    font-weight:600;
+  }
+  .sidebar-nav button svg { opacity:.8; }
+  .sidebar-nav button.active svg { opacity:1; color:var(--accent); }
+  .sidebar-toggle {
+    display:none; align-items:center; gap:8px;
+    background:var(--panel-2); color:var(--fg);
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px 12px; cursor:pointer; font-size:var(--text); font-family:inherit; font-weight:600;
+  }
+  .sidebar-toggle:hover { border-color:var(--line-strong); }
+
+  main.content {
+    flex:1; min-width:0;
+    padding:28px 32px 56px;
+    max-width:1400px;
+  }
+
+  .page-head {
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap:12px; flex-wrap:wrap; margin-bottom:18px;
+  }
+  .page-title {
+    margin:0; font-size:26px; font-weight:700;
+    font-family:var(--font-brand); letter-spacing:-.02em; line-height:1.2;
+  }
+  .page-sub { margin:6px 0 0; color:var(--muted); font-size:var(--text-lg); line-height:1.4; max-width:62ch; }
+
+  .btn, .primary {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    background:var(--panel-2); color:var(--fg);
+    border:1px solid var(--line); border-radius:24px;
+    padding:9px 16px; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+    cursor:pointer; line-height:1.2;
+  }
+  .btn:hover { border-color:var(--line-strong); background:var(--surface); }
+  .btn-primary, .primary {
+    background:var(--accent-strong); color:#fff; border-color:transparent;
+  }
+  .btn-primary:hover, .primary:hover { filter:brightness(1.08); }
+  .btn-icon {
+    width:36px; height:36px; padding:0; border-radius:50%;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .btn-ghost {
+    background:transparent; border-color:transparent; color:var(--muted); border-radius:8px;
+  }
+  .btn-ghost:hover { color:var(--fg); background:rgba(255,255,255,.06); border-color:transparent; }
+  .hidden { display:none !important; }
+  .err { color:var(--bad); font-size:var(--text-sm); min-height:18px; }
+  input, select {
+    background:var(--panel-2); border:1px solid var(--line); color:var(--fg);
+    padding:10px 12px; border-radius:var(--radius); font-size:var(--text); font-family:inherit;
+  }
+  input:focus, select:focus {
+    outline:none; border-color:var(--accent-strong); box-shadow:0 0 0 2px rgba(10,102,194,.35);
+  }
+  button.link {
+    background:none; border:none; color:var(--accent); cursor:pointer;
+    padding:0; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+  }
+  button.link:disabled { color:var(--muted); cursor:default; opacity:.5; }
+  a.link { color:var(--accent); text-decoration:none; font-size:inherit; font-weight:600; }
+  a.link:hover { text-decoration:underline; }
+
+  .toolbar {
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    margin-bottom:14px;
+    padding:14px 16px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+  }
+  .toolbar.tight { padding:10px 14px; }
+  .toolbar .spacer { flex:1; min-width:8px; }
+  .scope-toggle, .seg {
+    display:inline-flex; border:1px solid var(--line); border-radius:24px; overflow:hidden;
+  }
+  .scope-toggle button, .seg button {
+    background:transparent; color:var(--muted); border:none;
+    padding:8px 14px; cursor:pointer; font-size:var(--text-sm); font-family:inherit; font-weight:600;
+  }
+  .scope-toggle button:hover, .seg button:hover { color:var(--fg); background:rgba(255,255,255,.04); }
+  .scope-toggle button.active, .seg button.active {
+    background:var(--accent-soft); color:var(--fg);
+  }
+  .period-label { font-size:var(--text-lg); font-weight:600; min-width:160px; text-align:center; }
+  .hint { color:var(--muted); font-size:var(--text-sm); }
+  .mono { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size:13px; color:var(--muted); }
+
+  .panel {
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+  }
+  .panel-head {
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    background:rgba(255,255,255,.02);
+  }
+  .panel-title {
+    margin:0; font-size:var(--text-lg); font-weight:600;
+    color:var(--fg);
+  }
+  .panel-body { padding:16px 18px; }
+  .panel-body.flush { padding:0; }
+
+  .login-wrap {
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:28px 16px; background:var(--bg);
+  }
+  .login {
+    width:100%; max-width:400px;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:12px; padding:32px 28px;
+    display:flex; flex-direction:column; gap:14px;
+    box-shadow:var(--shadow);
+  }
+  .login-brand {
+    display:flex; flex-direction:column; align-items:center; gap:12px;
+    margin-bottom:8px; text-align:center;
+  }
+  .login-brand img {
+    width:56px; height:56px; border-radius:8px;
+    object-fit:contain; background:#000;
+  }
+  .login-brand .brand-name { font-size:28px; font-weight:700; }
+  .login-brand .hint { margin:0; font-size:var(--text); }
+  .login label {
+    display:block; font-size:var(--text-sm); font-weight:600;
+    color:var(--fg); margin-bottom:6px;
+  }
+  .login input { width:100%; }
+  .login .primary { width:100%; margin-top:6px; padding:12px 16px; font-size:var(--text-lg); border-radius:24px; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; align-items:center; }
+  .legend .lab { color:var(--muted); font-size:var(--text-sm); font-weight:600; margin-right:4px; }
+  .leg-chip {
+    display:inline-flex; align-items:center; gap:6px; font-size:var(--text-sm); color:var(--fg); font-weight:500;
+    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:4px 10px;
+  }
+  .swatch { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+  .cal-wrap { background:var(--panel); width:100%; }
+  .week-scroll { overflow:auto; max-height:calc(100vh - 280px); width:100%; }
+  .week-grid {
+    display:grid; width:100%; min-width:0;
+    grid-template-columns: var(--time-w) repeat(7, minmax(0, 1fr));
+  }
+  .week-head {
+    position:sticky; top:0; z-index:3; background:var(--panel); border-bottom:1px solid var(--line);
+    text-align:center; padding:10px 4px; font-size:var(--text-sm); min-width:0; overflow:hidden;
+  }
+  .week-head .dname {
+    color:var(--muted); font-size:12px; font-weight:600;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .week-head .ddate { font-weight:700; margin-top:2px; font-size:var(--text); }
+  .week-head.today { background:var(--accent-soft); }
+  .week-head.today .ddate { color:var(--accent); }
+  .time-col {
+    color:var(--muted); font-size:12px; text-align:right; padding-right:8px;
+    border-right:1px solid var(--line); height:var(--hour-h); line-height:var(--hour-h);
+  }
+  .day-col {
+    position:relative; border-right:1px solid var(--line); height:calc(var(--hour-h) * 16);
+    min-width:0; overflow:hidden; width:100%;
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--hour-h) - 1px), var(--line) calc(var(--hour-h) - 1px), var(--line) var(--hour-h));
+  }
+  .day-col:last-child { border-right:none; }
+  .evt {
+    position:absolute; border-radius:6px; padding:4px 6px; font-size:12px; overflow:hidden;
+    cursor:pointer; border:1px solid transparent; color:#04121c; line-height:1.25;
+    z-index:1; max-width:100%;
+  }
+  .evt .et { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .evt .em { opacity:.85; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:11px; }
+  .evt.conflict { box-shadow:0 0 0 2px var(--conflict); z-index:2; }
+  .evt.cancelled { opacity:.45; }
+  .evt.completed { opacity:.7; }
+  .evt.selected { outline:2px solid #fff; z-index:4; }
+  .more-chip {
+    position:absolute; left:2px; right:2px; background:rgba(0,0,0,.55); color:var(--fg);
+    font-size:11px; text-align:center; border-radius:4px; padding:2px; cursor:pointer; z-index:3;
+  }
+
+  .month-grid {
+    display:grid; grid-template-columns:repeat(7, minmax(0, 1fr));
+    width:100%; min-width:0; min-height:480px;
+  }
+  .month-dow {
+    text-align:center; padding:10px; color:var(--muted); font-size:var(--text-sm); font-weight:600;
+    border-bottom:1px solid var(--line); min-width:0; overflow:hidden;
+  }
+  .month-cell {
+    min-height:92px; min-width:0; overflow:hidden;
+    border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:6px; cursor:pointer; vertical-align:top;
+  }
+  .month-cell:nth-child(7n) { border-right:none; }
+  .month-cell.out { opacity:.4; }
+  .month-cell.today { background:var(--accent-soft); }
+  .month-cell:hover { background:rgba(112,181,249,.08); }
+  .mday { font-size:var(--text-sm); font-weight:700; margin-bottom:4px; }
+  .mchip {
+    display:block; font-size:11px; border-radius:4px; padding:2px 5px; margin-bottom:2px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#04121c; font-weight:600;
+  }
+  .mmore { color:var(--muted); font-size:12px; margin-top:2px; }
+
+  table { width:100%; border-collapse:collapse; background:transparent; }
+  .panel table, #mainPane table, #obsMetricsTable > table, #obsAppsTable table {
+    border:none; border-radius:0; background:transparent;
+  }
+  th, td { text-align:left; padding:12px 16px; border-bottom:1px solid var(--line); font-size:var(--text); }
+  th { color:var(--muted); font-size:var(--text-sm); font-weight:600; background:rgba(255,255,255,.03); }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,.03); }
+  tr.iv-row { cursor:pointer; }
+  tr.iv-row:hover td { background:rgba(112,181,249,.08); }
+  tr.iv-row.selected td { background:rgba(10,102,194,.22); }
+  tr.week-start td { border-top:2px solid var(--line); }
+  .pill { padding:3px 10px; border-radius:16px; font-size:13px; font-weight:600; display:inline-block; }
+  .pill.scheduled { background:rgba(112,181,249,.18); color:var(--accent); }
+  .pill.completed { background:rgba(87,194,107,.18); color:var(--ok); }
+  .pill.cancelled { background:rgba(248,113,113,.18); color:var(--bad); }
+  .pill.rescheduled { background:rgba(231,163,62,.18); color:var(--warn); }
+  .pill.on { background:rgba(87,194,107,.18); color:var(--ok); }
+  .pill.off { background:rgba(255,255,255,.08); color:var(--muted); }
+  .pchip { display:inline-flex; align-items:center; gap:6px; }
+
+  .layout { display:grid; grid-template-columns:minmax(0, 1fr) 320px; gap:16px; align-items:start; width:100%; }
+  #mainPane { min-width:0; width:100%; }
+  #calendarPane, #tablePane { width:100%; min-width:0; }
+  @media (max-width:980px) {
+    .layout { grid-template-columns:minmax(0, 1fr); }
+    .detail { position:static; }
+  }
+  @media (max-width:900px) {
+    .admin-layout { flex-direction:column; }
+    .sidebar {
+      width:100%; border-right:none; border-bottom:1px solid var(--line);
+      padding:10px 12px 12px; max-height:none;
+    }
+    .sidebar.collapsed .sidebar-nav { display:none; }
+    .sidebar-toggle { display:inline-flex; margin-bottom:8px; }
+    .sidebar-nav { flex-direction:row; flex-wrap:wrap; gap:6px; }
+    .nav-section { width:100%; margin:12px 4px 4px; }
+    .sidebar-nav button {
+      width:auto; border-radius:20px; padding:8px 14px; font-size:var(--text-sm);
+    }
+  }
+  @media (max-width:640px) {
+    main.content { padding:18px 14px 36px; }
+    .topbar { padding:0 14px; }
+    .brand-name { font-size:18px; }
+    .user-chip { max-width:140px; }
+    .page-title { font-size:22px; }
+    :root { --time-w:40px; --hour-h:40px; }
+    .week-head { padding:6px 2px; font-size:12px; }
+    .evt { font-size:11px; padding:2px 3px; }
+  }
+  .detail {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; position:sticky; top:72px; min-height:120px; box-shadow:var(--shadow);
+  }
+  .detail h2 { font-size:var(--text-lg); margin:0 0 10px; font-weight:700; }
+  .detail .empty { color:var(--muted); font-size:var(--text); }
+  .meta-grid { display:grid; grid-template-columns:1fr; gap:10px; margin:12px 0; }
+  .meta-grid .k { color:var(--muted); font-size:var(--text-sm); font-weight:600; }
+  .meta-grid .v { font-size:var(--text); margin-top:4px; word-break:break-word; }
+  .notes {
+    white-space:pre-wrap; font-size:var(--text); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:var(--radius); padding:12px 14px; margin-top:8px; max-height:180px; overflow:auto;
+  }
+
+  .placeholder-tab {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:36px 24px; text-align:center; color:var(--muted);
+  }
+  .placeholder-tab h2 { margin:0 0 8px; font-size:var(--text-lg); color:var(--fg); }
+  .placeholder-tab p { margin:0; font-size:var(--text); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:18px; }
+  .card {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px 16px; box-shadow:var(--shadow);
+  }
+  .card .n { font-size:28px; font-weight:700; letter-spacing:-.02em; line-height:1.1; }
+  .card .l { color:var(--muted); font-size:var(--text-sm); font-weight:500; margin-top:6px; }
+  .colleague-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:14px; }
+  .colleague-card {
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px;
+  }
+  .colleague-card .top { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; }
+  .colleague-card .cname { font-weight:700; font-size:var(--text-lg); }
+  .colleague-card .cemail { color:var(--muted); font-size:var(--text-sm); margin-top:4px; }
+  .colleague-card .shared { margin-top:12px; display:flex; flex-wrap:wrap; gap:6px; }
+  .colleague-card .shared span {
+    font-size:13px; font-weight:600; background:var(--accent-soft); color:var(--accent);
+    border:1px solid rgba(112,181,249,.35); border-radius:16px; padding:3px 10px;
+  }
+  .colleague-card .seen { color:var(--muted); font-size:var(--text-sm); margin-top:12px; }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+  .dot.on { background:var(--ok); box-shadow:0 0 0 3px rgba(87,194,107,.2); }
+  .dot.off { background:var(--muted); }
+
+  .day-popover {
+    position:fixed; z-index:40; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:12px; min-width:260px; max-width:360px; max-height:360px; overflow:auto; box-shadow:var(--shadow);
+  }
+  .day-popover h3 { margin:0 0 8px; font-size:var(--text); font-weight:700; }
+  .day-popover .row { padding:8px 6px; border-radius:6px; cursor:pointer; font-size:var(--text-sm); display:flex; gap:8px; align-items:flex-start; }
+  .day-popover .row:hover { background:rgba(112,181,249,.08); }
+  .loading { color:var(--muted); font-size:var(--text); padding:24px; text-align:center; }
+  .pager { display:flex; justify-content:flex-end; gap:12px; margin-bottom:8px; }
+  .search-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; width:100%; }
+  .search-row input[type="search"] { min-width:200px; flex:1; }
+</style>
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <div class="login">
+    <div class="login-brand">
+      <img src="/static/careercraft_icon.png" alt="" width="56" height="56" />
+      <div class="brand-name">CareerCraft</div>
+      <p class="hint">Sign in to CareerCraft</p>
+    </div>
+    <div>
+      <label for="email">Email</label>
+      <input id="email" placeholder="you@company.com" type="email" autocomplete="username" />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input id="password" placeholder="Password" type="password" autocomplete="current-password" />
+    </div>
+    <button class="primary" onclick="login()">Sign in</button>
+    <div id="loginErr" class="err"></div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-logo" src="/static/careercraft_icon.png" alt="" width="32" height="32" />
+      <span class="brand-name">CareerCraft</span>
+    </div>
+    <div class="topbar-right">
+      <span id="whoami" class="user-chip"></span>
+      <a id="adminLink" class="btn btn-ghost hidden" href="/deprecated/admin" title="Admin">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V7l8-4z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg>
+        <span>Admin</span>
+      </a>
+      <button type="button" class="btn btn-ghost" onclick="logout()" title="Sign out">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        <span>Sign out</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <aside class="sidebar" id="sidebar">
+      <button type="button" class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-expanded="true">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+        Menu
+      </button>
+      <nav class="sidebar-nav" id="appNav">
+        <div class="nav-section">Workspace</div>
+        <button type="button" data-tab="interviews" class="active" onclick="showAppTab('interviews')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/></svg>
+          Interviews
+        </button>
+        <button type="button" data-tab="workplan" id="navWorkPlan" onclick="showAppTab('workplan')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Work plan
+        </button>
+        <button type="button" data-tab="observability" onclick="showAppTab('observability')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="M8 16V10"/><path d="M12 16V7"/><path d="M16 16v-4"/></svg>
+          Performance
+        </button>
+        <button type="button" data-tab="colleagues" onclick="showAppTab('colleagues')">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="3"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a3 3 0 0 1 0 5.74"/></svg>
+          Colleagues
+        </button>
+      </nav>
+    </aside>
+
+    <main class="content">
+<div id="tab-interviews"></div>
+
+    <div id="tab-workplan" class="hidden"></div>
+
+    <div id="tab-observability" class="hidden"></div>
+
+    <div id="tab-colleagues" class="hidden">
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">Colleagues</h1>
+          <p class="page-sub" id="colleaguesHint">People who share your profiles. Online means active in the last 10 minutes.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2 class="panel-title">Team</h2></div>
+        <div class="panel-body">
+          <div id="colleaguesPane" class="loading">Loading…</div>
+        </div>
+      </div>
+    </div>
+      </main>
+  </div>
+</div>
+
+<script src="/static/js/common.js?v=sun1"></script>
+<script src="/static/js/interviews.js?v=sun1"></script>
+<script src="/static/js/workplans.js?v=sun1"></script>
+<script src="/static/js/performance.js?v=sun1"></script>
+<script>
+const API = "/api/v1";
+const TOKEN_KEY = "baymax_app_token";
+
+let token = localStorage.getItem(TOKEN_KEY) || localStorage.getItem("baymax_interviews_token") || "";
+let me = null;
+let appTab = "interviews";
+let interviewsCtl = null;
+let workPlanCtl = null;
+let performanceCtl = null;
+
+const esc = (s) => BaymaxWorkspace.esc(s);
+
+function accountRole() {
+  const r = ((me && me.role) || "member").toLowerCase();
+  return r === "user" ? "member" : r;
+}
+
+function canUseWorkPlan() {
+  const r = accountRole();
+  return r === "admin" || r === "manager" || r === "member";
+}
+
+function syncWorkPlanNav() {
+  const btn = document.getElementById("navWorkPlan");
+  if (btn) btn.classList.toggle("hidden", !canUseWorkPlan());
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const btn = document.getElementById("sidebarToggle");
+  if (!sidebar) return;
+  const collapsed = sidebar.classList.toggle("collapsed");
+  if (btn) btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+}
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    ...opts,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: "Bearer " + token } : {}),
+      ...(opts.headers || {}),
+    },
+  });
+  if (res.status === 401 || res.status === 403) { logout(); throw new Error("unauthorized"); }
+  if (!res.ok) {
+    let detail = "";
+    try { detail = (await res.json()).detail || ""; } catch (_) { try { detail = await res.text(); } catch (_) {} }
+    throw new Error(detail ? `HTTP ${res.status}: ${detail}` : `HTTP ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+function ensureInterviews() {
+  const el = document.getElementById("tab-interviews");
+  if (!el) return;
+  if (interviewsCtl) {
+    interviewsCtl.refresh();
+    return;
+  }
+  interviewsCtl = BaymaxWorkspace.mountInterviews(el, {
+    role: "user",
+    api,
+    filters: { scope: true, user: false, profile: true, status: true, type: true },
+    defaultScope: "mine",
+  });
+}
+
+function ensureWorkPlan() {
+  const el = document.getElementById("tab-workplan");
+  if (!el) return;
+  if (!canUseWorkPlan()) {
+    el.innerHTML = `<div class="placeholder-tab"><h2>Work plan unavailable</h2><p>Work plan is available for members, managers, and admins.</p></div>`;
+    return;
+  }
+  if (workPlanCtl) {
+    workPlanCtl.refresh();
+    return;
+  }
+  workPlanCtl = BaymaxWorkspace.mountWorkPlan(el, {
+    role: "member",
+    api,
+    defaultMode: "detail",
+  });
+}
+
+function ensurePerformance() {
+  const el = document.getElementById("tab-observability");
+  if (!el) return;
+  if (performanceCtl) {
+    performanceCtl.refresh();
+    return;
+  }
+  performanceCtl = BaymaxWorkspace.mountPerformance(el, {
+    role: "user",
+    api,
+    chartVariant: "compact",
+  });
+}
+
+function showAppTab(tab) {
+  if (tab === "workplan" && !canUseWorkPlan()) tab = "interviews";
+  appTab = tab;
+  document.querySelectorAll("#appNav button[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.getElementById("tab-interviews").classList.toggle("hidden", tab !== "interviews");
+  document.getElementById("tab-workplan").classList.toggle("hidden", tab !== "workplan");
+  document.getElementById("tab-observability").classList.toggle("hidden", tab !== "observability");
+  document.getElementById("tab-colleagues").classList.toggle("hidden", tab !== "colleagues");
+  const sidebar = document.getElementById("sidebar");
+  if (sidebar) {
+    const narrow = window.matchMedia("(max-width:900px)").matches;
+    sidebar.classList.toggle("collapsed", narrow);
+    const btn = document.getElementById("sidebarToggle");
+    if (btn) btn.setAttribute("aria-expanded", narrow ? "false" : "true");
+  }
+  try {
+    const url = new URL(window.location.href);
+    url.hash = tab === "interviews" ? "" : tab;
+    history.replaceState(null, "", url);
+  } catch (_) {}
+  if (tab === "interviews") ensureInterviews();
+  else if (tab === "workplan") ensureWorkPlan();
+  else if (tab === "observability") ensurePerformance();
+  else if (tab === "colleagues") loadColleagues();
+}
+
+function bootAppTabFromHash() {
+  const h = (location.hash || "").replace(/^#/, "");
+  if (h === "workplan" && !canUseWorkPlan()) return;
+  if (h === "observability" || h === "colleagues" || h === "workplan") {
+    appTab = h;
+    document.querySelectorAll("#appNav button[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === h));
+    document.getElementById("tab-interviews").classList.add("hidden");
+    document.getElementById("tab-workplan").classList.toggle("hidden", h !== "workplan");
+    document.getElementById("tab-observability").classList.toggle("hidden", h !== "observability");
+    document.getElementById("tab-colleagues").classList.toggle("hidden", h !== "colleagues");
+  }
+}
+
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  document.getElementById("loginErr").textContent = "";
+  try {
+    const res = await fetch(API + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) throw new Error("Invalid credentials");
+    const data = await res.json();
+    token = data.access_token;
+    localStorage.setItem(TOKEN_KEY, token);
+    await boot();
+  } catch (e) {
+    document.getElementById("loginErr").textContent = e.message;
+  }
+}
+
+function logout() {
+  token = "";
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem("baymax_interviews_token");
+  me = null;
+  if (interviewsCtl) { interviewsCtl.destroy(); interviewsCtl = null; }
+  if (workPlanCtl) { workPlanCtl.destroy(); workPlanCtl = null; }
+  if (performanceCtl) { performanceCtl.destroy(); performanceCtl = null; }
+  document.getElementById("appView").classList.add("hidden");
+  document.getElementById("loginView").classList.remove("hidden");
+}
+
+async function boot() {
+  try {
+    me = await api("/users/me");
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    document.getElementById("whoami").textContent = me.email;
+    const adminLink = document.getElementById("adminLink");
+    if (me.role === "admin" || me.role === "manager") adminLink.classList.remove("hidden");
+    else adminLink.classList.add("hidden");
+    syncWorkPlanNav();
+    document.getElementById("loginView").classList.add("hidden");
+    document.getElementById("appView").classList.remove("hidden");
+    bootAppTabFromHash();
+    if (appTab === "workplan" && !canUseWorkPlan()) appTab = "interviews";
+    if (appTab === "interviews") ensureInterviews();
+    else if (appTab === "workplan") ensureWorkPlan();
+    else if (appTab === "observability") ensurePerformance();
+    else if (appTab === "colleagues") await loadColleagues();
+  } catch (e) {
+    logout();
+  }
+}
+
+async function loadColleagues() {
+  const pane = document.getElementById("colleaguesPane");
+  pane.innerHTML = '<div class="loading">Loading…</div>';
+  try {
+    const d = await api("/team/colleagues");
+    const list = d.colleagues || [];
+    if (!list.length) {
+      pane.innerHTML = `<div class="placeholder-tab"><h2>No colleagues yet</h2><p>When another account is assigned to the same profile as you, they will show up here.</p></div>`;
+      return;
+    }
+    pane.innerHTML = '<div class="colleague-grid">' + list.map(c => {
+      const name = c.name || c.email || "User";
+      const seen = c.last_seen ? ("Last seen " + new Date(c.last_seen).toLocaleString()) : "Never seen online";
+      const chips = (c.shared_profiles || []).map(p => `<span>${esc(p.name || p.key)}</span>`).join("");
+      return `<div class="colleague-card">
+        <div class="top">
+          <div>
+            <div class="cname">${esc(name)}</div>
+            <div class="cemail">${esc(c.email || "")}</div>
+          </div>
+          <span class="pill ${c.online ? "on" : "off"}"><span class="dot ${c.online ? "on" : "off"}"></span>${c.online ? "online" : "offline"}</span>
+        </div>
+        <div class="shared">${chips || '<span class="hint">No shared profiles</span>'}</div>
+        <div class="seen">${esc(seen)}</div>
+      </div>`;
+    }).join("") + "</div>";
+  } catch (e) {
+    pane.innerHTML = `<div class="err" style="padding:16px;">${esc(e.message)}</div>`;
+  }
+}
+
+document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+document.getElementById("email").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+
+if (token) boot();
+</script>
+</body>
+</html>
